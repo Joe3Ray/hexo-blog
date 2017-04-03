@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="vue.js," />
 
 
 
@@ -89,15 +89,37 @@
 
 
 
-<meta name="description" content="野蛮生长ing ~">
-<meta property="og:type" content="website">
-<meta property="og:title" content="JoeRay61">
-<meta property="og:url" content="http://joeray61.com/index.html">
+<meta name="description" content="本文是针对Vue@2.1.8进行分析
+
+observer是Vue核心中最重要的一个模块（个人认为），能够实现视图与数据的响应式更新，底层全凭observer的支持。
+observer模块在Vue项目中的代码位置是src/core/observer，模块共分为这几个部分：
+
+Observer: 数据的观察者，让数据对象的读写操作都处于自己的监管之下
+Watcher: 数据的订阅者，数据的变化会通知">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue原理解析之observer模块">
+<meta property="og:url" content="http://joeray61.com/2017/02/16/Vue原理解析之observer模块/index.html">
 <meta property="og:site_name" content="JoeRay61">
-<meta property="og:description" content="野蛮生长ing ~">
+<meta property="og:description" content="本文是针对Vue@2.1.8进行分析
+
+observer是Vue核心中最重要的一个模块（个人认为），能够实现视图与数据的响应式更新，底层全凭observer的支持。
+observer模块在Vue项目中的代码位置是src/core/observer，模块共分为这几个部分：
+
+Observer: 数据的观察者，让数据对象的读写操作都处于自己的监管之下
+Watcher: 数据的订阅者，数据的变化会通知">
+<meta property="og:image" content="http://joeray61.com/2017/02/16/Vue原理解析之observer模块/flow.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/16/Vue原理解析之observer模块/flow2.png">
+<meta property="og:updated_time" content="2017-04-03T15:48:06.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="JoeRay61">
-<meta name="twitter:description" content="野蛮生长ing ~">
+<meta name="twitter:title" content="Vue原理解析之observer模块">
+<meta name="twitter:description" content="本文是针对Vue@2.1.8进行分析
+
+observer是Vue核心中最重要的一个模块（个人认为），能够实现视图与数据的响应式更新，底层全凭observer的支持。
+observer模块在Vue项目中的代码位置是src/core/observer，模块共分为这几个部分：
+
+Observer: 数据的观察者，让数据对象的读写操作都处于自己的监管之下
+Watcher: 数据的订阅者，数据的变化会通知">
+<meta name="twitter:image" content="http://joeray61.com/2017/02/16/Vue原理解析之observer模块/flow.png">
 
 
 
@@ -125,13 +147,13 @@
 
 
 
-  <link rel="canonical" href="http://joeray61.com/"/>
+  <link rel="canonical" href="http://joeray61.com/2017/02/16/Vue原理解析之observer模块/"/>
 
 
 
 
 
-  <title> JoeRay61 </title>
+  <title> Vue原理解析之observer模块 | JoeRay61 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -156,9 +178,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-   page-home 
- ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -251,9 +271,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -283,10 +303,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2017/02/16/Vue原理解析之observer模块/" itemprop="url">
-                  Vue原理解析之observer模块
-                </a>
+                Vue原理解析之observer模块
               
             
           </h1>
@@ -370,9 +387,7 @@
       
 
       
-        
-          
-            <blockquote>
+        <blockquote>
 <p>本文是针对<code>Vue@2.1.8</code>进行分析</p>
 </blockquote>
 <p><code>observer</code>是Vue核心中最重要的一个模块（个人认为），能够实现视图与数据的响应式更新，底层全凭<code>observer</code>的支持。</p>
@@ -420,42 +435,77 @@
 </ul>
 <h2 id="Array-methods"><a href="#Array-methods" class="headerlink" title="Array methods"></a>Array methods</h2><p>在<code>src/core/observer/array.js</code>中，Vue框架对数组的<code>push</code>、<code>pop</code>、<code>shift</code>、<code>unshift</code>、<code>sort</code>、<code>splice</code>、<code>reverse</code>方法进行了改造，在调用数组的这些方法时，自动触发<code>dep.notify()</code>，解决了调用这些函数改变数组后无法触发更新的问题。在Vue的官方文档中对这个也有说明：<a href="http://cn.vuejs.org/v2/guide/list.html#变异方法" target="_blank" rel="external">http://cn.vuejs.org/v2/guide/list.html#变异方法</a></p>
 
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="JoeRay61 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="JoeRay61 Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
     </div>
+  </div>
 
-    <div>
+
       
     </div>
 
     <div>
+      
+        
+
       
     </div>
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/vue-js/" rel="tag"># vue.js</a>
+          
+        </div>
+      
+
+      
+        
+      
 
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -463,6 +513,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -482,8 +536,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/joeray61.png"
@@ -590,6 +653,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Observer"><span class="nav-number">1.</span> <span class="nav-text">Observer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dep"><span class="nav-number">2.</span> <span class="nav-text">Dep</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Watcher"><span class="nav-number">3.</span> <span class="nav-text">Watcher</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Array-methods"><span class="nav-number">4.</span> <span class="nav-text">Array methods</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -704,6 +783,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
 
   
 

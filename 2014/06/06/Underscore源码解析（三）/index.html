@@ -1,0 +1,838 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="javascript,underscore,源码," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="JoeRay61" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前两天在微博上看到SF的微博推荐了我的前两篇文章，有点意外和惊喜。作为一个菜鸟，真的是倍受鼓舞，我写博客的动力也更充足了。没看过前两篇博客的朋友可以戳这里：Underscore源码解析（一）、Underscore源码解析（二）上一篇文章介绍了underscore的10个函数的具体实现细节，今天将继续介绍其他的函数。
+_.invoke12345678_.invoke = function(obj,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Underscore源码解析（三）">
+<meta property="og:url" content="http://joeray61.com/2014/06/06/Underscore源码解析（三）/index.html">
+<meta property="og:site_name" content="JoeRay61">
+<meta property="og:description" content="前两天在微博上看到SF的微博推荐了我的前两篇文章，有点意外和惊喜。作为一个菜鸟，真的是倍受鼓舞，我写博客的动力也更充足了。没看过前两篇博客的朋友可以戳这里：Underscore源码解析（一）、Underscore源码解析（二）上一篇文章介绍了underscore的10个函数的具体实现细节，今天将继续介绍其他的函数。
+_.invoke12345678_.invoke = function(obj,">
+<meta property="og:updated_time" content="2017-04-04T10:42:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Underscore源码解析（三）">
+<meta name="twitter:description" content="前两天在微博上看到SF的微博推荐了我的前两篇文章，有点意外和惊喜。作为一个菜鸟，真的是倍受鼓舞，我写博客的动力也更充足了。没看过前两篇博客的朋友可以戳这里：Underscore源码解析（一）、Underscore源码解析（二）上一篇文章介绍了underscore的10个函数的具体实现细节，今天将继续介绍其他的函数。
+_.invoke12345678_.invoke = function(obj,">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://joeray61.com/2014/06/06/Underscore源码解析（三）/"/>
+
+
+
+
+
+  <title> Underscore源码解析（三） | JoeRay61 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JoeRay61</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">make things make sense</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/06/06/Underscore源码解析（三）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Underscore源码解析（三）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-06-06T18:32:17+08:00">
+                2014-06-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前两天在微博上看到SF的微博推荐了我的前两篇文章，有点意外和惊喜。作为一个菜鸟，真的是倍受鼓舞，我写博客的动力也更充足了。<br>没看过前两篇博客的朋友可以戳这里：<a href="/2014/05/21/Underscore源码解析（一）/">Underscore源码解析（一）</a>、<a href="/2014/06/03/Underscore源码解析（二）/">Underscore源码解析（二）</a><br>上一篇文章介绍了underscore的10个函数的具体实现细节，今天将继续介绍其他的函数。</p>
+<h2 id="invoke"><a href="#invoke" class="headerlink" title="_.invoke"></a>_.invoke</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">_.invoke = function(obj, method) &#123;</div><div class="line">    // 调用同名方法时传递的参数(从第3个参数开始)</div><div class="line">    var args = slice.call(arguments, 2);</div><div class="line">    // 依次调用每个元素的方法, 并将结果放入数组中返回</div><div class="line">    return _.map(obj, function(value) &#123;</div><div class="line">        return (_.isFunction(method) ? method || value : value[method]).apply(value, args);</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数依次调用集合中所有元素的同名方法，从第3个参数开始的所有参数将被传入到元素的调用方法中，最后返回一个数组，该数组存储了所有方法的处理结果</p>
+<h2 id="pluck"><a href="#pluck" class="headerlink" title="_.pluck"></a>_.pluck</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">_.pluck = function(obj, key) &#123;</div><div class="line">    // 如果某一个对象中不存在该属性, 则返回undefined</div><div class="line">    return _.map(obj, function(value) &#123;</div><div class="line">        return value[key];</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数遍历了一个由对象列表组成的集合，并返回每个对象中的指定属性的值列表</p>
+<h2 id="max"><a href="#max" class="headerlink" title="_.max"></a>_.max</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">_.max = function(obj, iterator, context) &#123;</div><div class="line">    // 如果集合是一个数组, 且没有使用处理器, 则使用Math.max获取最大值</div><div class="line">    // 一般会是在一个数组存储了一系列Number类型的数据</div><div class="line">    if(!iterator &amp;&amp; _.isArray(obj) &amp;&amp; obj[0] === +obj[0])</div><div class="line">        return Math.max.apply(Math, obj);</div><div class="line">    // 对于空值, 直接返回负无穷大</div><div class="line">    if(!iterator &amp;&amp; _.isEmpty(obj))</div><div class="line">        return -Infinity;</div><div class="line">    // 一个临时的对象, computed用于在比较过程中存储最大值(临时的)</div><div class="line">    var result = &#123;</div><div class="line">        computed : -Infinity</div><div class="line">    &#125;;</div><div class="line">    // 迭代集合中的元素</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        // 如果指定了处理器参数, 则比较的数据为处理器返回的值, 否则直接使用each遍历时的默认值</div><div class="line">        var computed = iterator ? iterator.call(context, value, index, list) : value;</div><div class="line">        // 如果比较值相比上一个值要大, 则将当前值放入result.value</div><div class="line">        computed &gt;= result.computed &amp;&amp; ( result = &#123;</div><div class="line">            value : value,</div><div class="line">            computed : computed</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">    // 返回最大值</div><div class="line">    return result.value;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>顾名思义，这个函数用来返回集合中的最大值, 如果不存在可比较的值, 则返回undefined</p>
+<h2 id="min"><a href="#min" class="headerlink" title="_.min"></a>_.min</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">_.min = function(obj, iterator, context) &#123;</div><div class="line">    if(!iterator &amp;&amp; _.isArray(obj) &amp;&amp; obj[0] === +obj[0])</div><div class="line">        return Math.min.apply(Math, obj);</div><div class="line">    if(!iterator &amp;&amp; _.isEmpty(obj))</div><div class="line">        return Infinity;</div><div class="line">    var result = &#123;</div><div class="line">        computed : Infinity</div><div class="line">    &#125;;</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        var computed = iterator ? iterator.call(context, value, index, list) : value;</div><div class="line">        computed &lt; result.computed &amp;&amp; ( result = &#123;</div><div class="line">            value : value,</div><div class="line">            computed : computed</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">    return result.value;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数没有加注释，因为实现过程与max基本相同，用于返回集合中的最小值</p>
+<h2 id="shuffle"><a href="#shuffle" class="headerlink" title="_.shuffle"></a>_.shuffle</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">_.shuffle = function(obj) &#123;</div><div class="line">    // shuffled变量存储处理过程及最终的结果数据</div><div class="line">    var shuffled = [], rand;</div><div class="line">    // 迭代集合中的元素</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        // 生成一个随机数, 随机数在&lt;0-当前已处理的数量&gt;之间</div><div class="line">        rand = Math.floor(Math.random() * (index + 1));</div><div class="line">        // 将已经随机得到的元素放到shuffled数组末尾</div><div class="line">        shuffled[index] = shuffled[rand];</div><div class="line">        // 在前面得到的随机数的位置插入最新值</div><div class="line">        shuffled[rand] = value;</div><div class="line">    &#125;);</div><div class="line">    // 返回一个数组, 该数组中存储了经过随机混排的集合元素</div><div class="line">    return shuffled;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数是通过随机数, 让数组无须排列，实际上是实现了一个模拟洗牌过程的算法</p>
+<h2 id="sortBy"><a href="#sortBy" class="headerlink" title="_.sortBy"></a>_.sortBy</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">_.sortBy = function(obj, val, context) &#123;</div><div class="line">    // val应该是对象的一个属性, 或一个处理器函数, 如果是一个处理器, 则应该返回需要进行比较的数据</div><div class="line">    var iterator = _.isFunction(val) ? val : function(obj) &#123;</div><div class="line">        return obj[val];</div><div class="line">    &#125;;</div><div class="line">    // 调用顺序: _.pluck(_.map().sort());</div><div class="line">    // 调用_.map()方法遍历集合, 并将集合中的元素放到value节点, 将元素中需要进行比较的数据放到criteria属性中</div><div class="line">    // 调用sort()方法将集合中的元素按照criteria属性中的数据进行顺序排序</div><div class="line">    // 调用pluck获取排序后的对象集合并返回</div><div class="line">    return _.pluck(_.map(obj, function(value, index, list) &#123;</div><div class="line">        return &#123;</div><div class="line">            value : value,</div><div class="line">            criteria : iterator.call(context, value, index, list)</div><div class="line">        &#125;;</div><div class="line">    &#125;).sort(function(left, right) &#123;</div><div class="line">        var a = left.criteria, b = right.criteria;</div><div class="line">        if(a ===</div><div class="line">            void 0)</div><div class="line">            return 1;</div><div class="line">        if(b ===</div><div class="line">            void 0)</div><div class="line">            return -1;</div><div class="line">        return a &lt; b ? -1 : a &gt; b ? 1 : 0;</div><div class="line">    &#125;), &apos;value&apos;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数对集合中元素, 按照特定的字段或值进行排列，相比Array.prototype.sort方法, sortBy方法支持对对象排序</p>
+<h2 id="groupBy"><a href="#groupBy" class="headerlink" title="_.groupBy"></a>_.groupBy</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">_.groupBy = function(obj, val) &#123;</div><div class="line">    var result = &#123;&#125;;</div><div class="line">    // val将被转换为进行分组的处理器函数, 如果val不是一个Function类型的数据, 则将被作为筛选元素时的key值</div><div class="line">    var iterator = _.isFunction(val) ? val : function(obj) &#123;</div><div class="line">        return obj[val];</div><div class="line">    &#125;;</div><div class="line">    // 迭代集合中的元素</div><div class="line">    each(obj, function(value, index) &#123;</div><div class="line">        // 将处理器的返回值作为key, 并将相同的key元素放到一个新的数组</div><div class="line">        var key = iterator(value, index);</div><div class="line">        (result[key] || (result[key] = [])).push(value);</div><div class="line">    &#125;);</div><div class="line">    // 返回已分组的数据</div><div class="line">    return result;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数将集合中的元素, 按处理器返回的key分为多个数组</p>
+<h2 id="sortedIndex"><a href="#sortedIndex" class="headerlink" title="_.sortedIndex"></a>_.sortedIndex</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">_.sortedIndex = function(array, obj, iterator) &#123;</div><div class="line">    // 如果没有指定处理器参数, 则使用默认的处理器函数，该函数会返回参数本身</div><div class="line">    iterator || ( iterator = _.identity);</div><div class="line">    var low = 0, high = array.length;</div><div class="line">    // 不断与中间值对比，寻找obj的正确插入点</div><div class="line">    while(low &lt; high) &#123;</div><div class="line">        // (low + high) &gt;&gt; 1 相当于 Math.floor((low + high) / 2)</div><div class="line">        var mid = (low + high) &gt;&gt; 1;</div><div class="line">        iterator(array[mid]) &lt; iterator(obj) ? low = mid + 1 : high = mid;</div><div class="line">    &#125;</div><div class="line">    // 返回obj插入array之后的索引号</div><div class="line">    return low;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数的作用是将obj插入已经排序的array中，返回obj在array中的索引号</p>
+<h2 id="toArray"><a href="#toArray" class="headerlink" title="_.toArray"></a>_.toArray</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">_.toArray = function(obj) &#123;</div><div class="line">    if(!obj)</div><div class="line">        return [];</div><div class="line">    if(_.isArray(obj))</div><div class="line">        return slice.call(obj);</div><div class="line">    // 将arguments转换为数组</div><div class="line">    if(_.isArguments(obj))</div><div class="line">        return slice.call(obj);</div><div class="line">    if(obj.toArray &amp;&amp; _.isFunction(obj.toArray))</div><div class="line">        return obj.toArray();</div><div class="line">    // 将对象转换为数组, 数组中包含对象中所有属性的值列表(不包含对象原型链中的属性)</div><div class="line">    return _.values(obj);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数很简单，作用是将一个集合转换一个数组并返回</p>
+<h2 id="size"><a href="#size" class="headerlink" title="_.size"></a>_.size</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">_.size = function(obj) &#123;</div><div class="line">    // 如果集合是一个数组, 则计算数组元素数量</div><div class="line">    // 如果集合是一个对象, 则计算对象中的属性数量(不包含对象原型链中的属性)</div><div class="line">    return _.isArray(obj) ? obj.length : _.keys(obj).length;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于计算集合中元素的数量，isArray和keys函数后面会介绍到</p>
+<h2 id="first-head-take"><a href="#first-head-take" class="headerlink" title=".first / .head / _.take"></a><em>.first / </em>.head / _.take</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">_.first = _.head = _.take = function(array, n, guard) &#123;</div><div class="line">    // 如果没有指定参数n, 则返回第一个元素</div><div class="line">    // 如果指定了n, 则返回一个新的数组, 包含顺序指定数量n个元素</div><div class="line">    // guard参数用于确定只返回第一个元素, 当guard为true时, 指定数量n无效</div><div class="line">    return (n != null) &amp;&amp; !guard ? slice.call(array, 0, n) : array[0];</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于返回一个数组的第一个或順序指定的n个元素</p>
+<h2 id="initial"><a href="#initial" class="headerlink" title="_.initial"></a>_.initial</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">_.initial = function(array, n, guard) &#123;</div><div class="line">    // 如果没有传递参数n, 则默认返回除最后一个元素外的其它元素</div><div class="line">    // 如果传递参数n, 则返回从最后一个元素开始向前的n个元素外的其它元素</div><div class="line">    // guard用于确定只返回一个元素, 当guard为true时, 指定数量n无效</div><div class="line">    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数返回一个新数组, 包含除最后一个元素外的其它元素, 或排除从最后一个元素开始向前指定n个元素</p>
+<h2 id="last"><a href="#last" class="headerlink" title="_.last"></a>_.last</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">_.last = function(array, n, guard) &#123;</div><div class="line">    if((n != null) &amp;&amp; !guard) &#123;</div><div class="line">        // 计算并指定获取的元素位置n, 直到数组末尾, 作为一个新的数组返回</div><div class="line">        return slice.call(array, Math.max(array.length - n, 0));</div><div class="line">    &#125; else &#123;</div><div class="line">        // 如果没有指定数量, 或guard为true时, 只返回最后一个元素</div><div class="line">        return array[array.length - 1];</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数与first相反，返回数组的最后一个或倒序指定的n个元素</p>
+<h2 id="rest-tail"><a href="#rest-tail" class="headerlink" title=".rest / .tail"></a><em>.rest / </em>.tail</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">_.rest = _.tail = function(array, index, guard) &#123;</div><div class="line">    // 计算slice的第二个位置参数, 直到数组末尾</div><div class="line">    // 如果没有指定index, 或guard值为true, 则返回除第一个元素外的其它元素</div><div class="line">    // (index == null)值为true时, 作为参数传递给slice函数将被自动转换为1</div><div class="line">    return slice.call(array, (index == null) || guard ? 1 : index);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数与initial相反，用于获取除了第一个或指定前n个元素外的其它元素</p>
+<h2 id="campact"><a href="#campact" class="headerlink" title="_.campact"></a>_.campact</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">_.compact = function(array) &#123;</div><div class="line">    return _.filter(array, function(value) &#123;</div><div class="line">        return !!value;</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数借助filter函数，返回数组中所有值能被转换为true的元素, 返回一个新的数组，不能被转换的值包括 false, 0, ‘’, null, undefined, NaN, 这些值将被转换为false</p>
+<h2 id="flatten"><a href="#flatten" class="headerlink" title="_.flatten"></a>_.flatten</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">_.flatten = function(array, shallow) &#123;</div><div class="line">    // 迭代数组中的每一个元素, 并将返回值作为demo传递给下一次迭代</div><div class="line">    return _.reduce(array, function(memo, value) &#123;</div><div class="line">        // 如果元素依然是一个数组, 进行以下判断:</div><div class="line">        // - 如果不进行深层合并, 则使用Array.prototype.concat将当前数组和之前的数据进行连接</div><div class="line">        // - 如果支持深层合并, 则迭代调用flatten方法, 直到底层元素不再是数组类型</div><div class="line">        if(_.isArray(value))</div><div class="line">            return memo.concat( shallow ? value : _.flatten(value));</div><div class="line">        // 数据(value)已经处于底层, 不再是数组类型, 则将数据合并到memo中并返回</div><div class="line">        memo[memo.length] = value;</div><div class="line">        return memo;</div><div class="line">    &#125;, []);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于将一个多维数组合成为一维数组, 支持深层合并，其中第二个参数shallow用于控制合并深度, 当shallow为true时, 只合并第一层, 默认进行深层合并</p>
+<h2 id="without"><a href="#without" class="headerlink" title="_.without"></a>_.without</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">_.without = function(array) &#123;</div><div class="line">    return _.difference(array, slice.call(arguments, 1));</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于筛选并返回当前数组中与指定数据不相等的差异数据，具体可以参看我后续对difference函数的介绍</p>
+<h2 id="uniq-unique"><a href="#uniq-unique" class="headerlink" title=".uniq/.unique"></a><em>.uniq/</em>.unique</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">_.uniq = _.unique = function(array, isSorted, iterator) &#123;</div><div class="line">    // 如果使用了iterator处理器, 则先将当前数组中的数据会先经过按迭代器处理, 并返回一个处理后的新数组</div><div class="line">    // 新数组用于作为比较的基准</div><div class="line">    var initial = iterator ? _.map(array, iterator) : array;</div><div class="line">    // 用于记录处理结果的临时数组</div><div class="line">    var results = [];</div><div class="line">    // 如果数组中只有2个值, 则不需要使用include方法进行比较, 将isSorted设置为true能提高运行效率</div><div class="line">    if(array.length &lt; 3)</div><div class="line">        isSorted = true;</div><div class="line">    // 使用reduce方法迭代并累加处理结果</div><div class="line">    // initial变量是需要进行比较的基准数据, 它可能是原始数组, 也可能是处理器的结果集合(如果设置过iterator)</div><div class="line">    _.reduce(initial, function(memo, value, index) &#123;</div><div class="line">        // 如果isSorted参数为true, 则直接使用===比较记录中的最后一个数据</div><div class="line">        // 如果isSorted参数为false, 则使用include方法与集合中的每一个数据进行对比</div><div class="line">        if( isSorted ? _.last(memo) !== value || !memo.length : !_.include(memo, value)) &#123;</div><div class="line">            // memo记录了已经比较过的无重复数据</div><div class="line">            // 根据iterator参数的状态, memo中记录的数据可能是原始数据, 也可能是处理器处理后的数据</div><div class="line">            memo.push(value);</div><div class="line">            // 处理结果数组中保存的始终为原始数组中的数据</div><div class="line">            results.push(array[index]);</div><div class="line">        &#125;</div><div class="line">        return memo;</div><div class="line">    &#125;, []);</div><div class="line">    // 返回处理结果, 它只包含数组中无重复的数据</div><div class="line">    return results;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于对数组中的数据进行去重(使用===进行比较)，当isSorted参数不为false时, 将依次对数组中的元素调用include方法, 检查相同元素是否已经被添加到返回值(数组)中，如果调用之前确保数组中数据按顺序排列, 则可以将isSorted设为true, 它将通过与最后一个元素进行对比来排除相同值, 使用isSorted效率会高于默认的include方式，uniq方法默认将以数组中的数据进行对比, 如果声明iterator处理器, 则会根据处理器创建一个对比数组, 比较时以该数组中的数据为准, 但最终返回的唯一数据仍然是原始数组</p>
+<h2 id="union"><a href="#union" class="headerlink" title="_.union"></a>_.union</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">_.union = function() &#123;</div><div class="line">    // union对参数中的多个数组进行浅层合并为一个数组对象传递给uniq方法进行处理</div><div class="line">    return _.uniq(_.flatten(arguments, true));</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数与uniq作用一致, 不同之处在于union允许在参数中传入多个数组</p>
+<h2 id="intersection"><a href="#intersection" class="headerlink" title="_.intersection"></a>_.intersection</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">_.intersection = _.intersect = function(array) &#123;</div><div class="line">    // rest变量记录需要进行比较的其它数组对象</div><div class="line">    var rest = slice.call(arguments, 1);</div><div class="line">    // 使用uniq方法去除当前数组中的重复数据, 避免重复计算</div><div class="line">    // 对当前数组的数据通过处理器进行过滤, 并返回符合条件(比较相同元素)的数据</div><div class="line">    return _.filter(_.uniq(array), function(item) &#123;</div><div class="line">        // 使用every方法验证每一个数组中都包含了需要对比的数据</div><div class="line">        // 如果所有数组中均包含对比数据, 则全部返回true, 如果任意一个数组没有包含该元素, 则返回false</div><div class="line">        return _.every(rest, function(other) &#123;</div><div class="line">            // other参数存储了每一个需要进行对比的数组</div><div class="line">            // item存储了当前数组中需要进行对比的数据</div><div class="line">            // 使用indexOf方法搜索数组中是否存在该元素(可参考indexOf方法注释)</div><div class="line">            return _.indexOf(other, item) &gt;= 0;</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于获取当前数组与其它一个或多个数组的交集元素，从第二个参数开始为需要进行比较的一个或多个数组</p>
+<h2 id="difference"><a href="#difference" class="headerlink" title="_.difference"></a>_.difference</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">_.difference = function(array) &#123;</div><div class="line">    // 对第2个参数开始的所有参数, 作为一个数组进行合并(仅合并第一层, 而并非深层合并)</div><div class="line">    // rest变量存储验证数据, 在本方法中用于与原数据对比</div><div class="line">    var rest = _.flatten(slice.call(arguments, 1), true);</div><div class="line">    // 对合并后的数组数据进行过滤, 过滤条件是当前数组中不包含参数指定的验证数据的内容</div><div class="line">    // 将符合过滤条件的数据组合为一个新的数组并返回</div><div class="line">    return _.filter(array, function(value) &#123;</div><div class="line">        return !_.include(rest, value);</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数会筛选并返回当前数组中与指定数据不相等的差异数据，一般用于删除数组中指定的数据, 并得到删除后的新数组</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>今天一共介绍了21个函数的具体实现，我都写累了，大家可能也看累了吧，我觉得写太多也不利于大家消化这些知识，今天就到这儿吧。thx for reading, hope u enjoy</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="JoeRay61 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="JoeRay61 Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+            <a href="/tags/underscore/" rel="tag"># underscore</a>
+          
+            <a href="/tags/源码/" rel="tag"># 源码</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/06/03/Underscore源码解析（二）/" rel="next" title="Underscore源码解析（二）">
+                <i class="fa fa-chevron-left"></i> Underscore源码解析（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/06/07/Underscore源码解析（四）/" rel="prev" title="Underscore源码解析（四）">
+                Underscore源码解析（四） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/joeray61.png"
+               alt="JoeRay61" />
+          <p class="site-author-name" itemprop="name">JoeRay61</p>
+           
+              <p class="site-description motion-element" itemprop="description">野蛮生长ing ~</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Joe3Ray" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/1997891561" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://schoeu.com/" title="Schoeu" target="_blank">Schoeu</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://xuexb.com/" title="前端小武" target="_blank">前端小武</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#invoke"><span class="nav-number">1.</span> <span class="nav-text">_.invoke</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pluck"><span class="nav-number">2.</span> <span class="nav-text">_.pluck</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#max"><span class="nav-number">3.</span> <span class="nav-text">_.max</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#min"><span class="nav-number">4.</span> <span class="nav-text">_.min</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shuffle"><span class="nav-number">5.</span> <span class="nav-text">_.shuffle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sortBy"><span class="nav-number">6.</span> <span class="nav-text">_.sortBy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#groupBy"><span class="nav-number">7.</span> <span class="nav-text">_.groupBy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sortedIndex"><span class="nav-number">8.</span> <span class="nav-text">_.sortedIndex</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#toArray"><span class="nav-number">9.</span> <span class="nav-text">_.toArray</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#size"><span class="nav-number">10.</span> <span class="nav-text">_.size</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#first-head-take"><span class="nav-number">11.</span> <span class="nav-text">.first / .head / _.take</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#initial"><span class="nav-number">12.</span> <span class="nav-text">_.initial</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#last"><span class="nav-number">13.</span> <span class="nav-text">_.last</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rest-tail"><span class="nav-number">14.</span> <span class="nav-text">.rest / .tail</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#campact"><span class="nav-number">15.</span> <span class="nav-text">_.campact</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#flatten"><span class="nav-number">16.</span> <span class="nav-text">_.flatten</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#without"><span class="nav-number">17.</span> <span class="nav-text">_.without</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uniq-unique"><span class="nav-number">18.</span> <span class="nav-text">.uniq/.unique</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#union"><span class="nav-number">19.</span> <span class="nav-text">_.union</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#intersection"><span class="nav-number">20.</span> <span class="nav-text">_.intersection</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#difference"><span class="nav-number">21.</span> <span class="nav-text">_.difference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number"></span> <span class="nav-text">小结</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JoeRay61</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

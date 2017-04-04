@@ -1,0 +1,798 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="javascript,underscore,源码," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="JoeRay61" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近准备折腾一下backbone.js，在事先了解了backbone之后，我知道了backbone对underscore这个库有着强依赖，正好underscore之前也没使用过，于是我就想先把underscore彻底了解一下，这样之后折腾backbone的时候也少一点阻碍。    underscore是一个很实用且小巧的框架，提供了很多我们在编程时需要的基本功能函数，而且他没有扩展javascri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Underscore源码解析（一）">
+<meta property="og:url" content="http://joeray61.com/2014/05/21/Underscore源码解析（一）/index.html">
+<meta property="og:site_name" content="JoeRay61">
+<meta property="og:description" content="最近准备折腾一下backbone.js，在事先了解了backbone之后，我知道了backbone对underscore这个库有着强依赖，正好underscore之前也没使用过，于是我就想先把underscore彻底了解一下，这样之后折腾backbone的时候也少一点阻碍。    underscore是一个很实用且小巧的框架，提供了很多我们在编程时需要的基本功能函数，而且他没有扩展javascri">
+<meta property="og:updated_time" content="2017-04-04T10:39:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Underscore源码解析（一）">
+<meta name="twitter:description" content="最近准备折腾一下backbone.js，在事先了解了backbone之后，我知道了backbone对underscore这个库有着强依赖，正好underscore之前也没使用过，于是我就想先把underscore彻底了解一下，这样之后折腾backbone的时候也少一点阻碍。    underscore是一个很实用且小巧的框架，提供了很多我们在编程时需要的基本功能函数，而且他没有扩展javascri">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://joeray61.com/2014/05/21/Underscore源码解析（一）/"/>
+
+
+
+
+
+  <title> Underscore源码解析（一） | JoeRay61 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JoeRay61</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">make things make sense</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/05/21/Underscore源码解析（一）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Underscore源码解析（一）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-05-21T18:38:16+08:00">
+                2014-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近准备折腾一下<em>backbone.js</em>，在事先了解了<em>backbone</em>之后，我知道了<em>backbone</em>对<em>underscore</em>这个库有着强依赖，正好<em>underscore</em>之前也没使用过，于是我就想先把<em>underscore</em>彻底了解一下，这样之后折腾<em>backbone</em>的时候也少一点阻碍。<br>    <em>underscore</em>是一个很实用且小巧的框架，提供了很多我们在编程时需要的基本功能函数，而且他没有扩展<em>javascript</em>的原生对象，主要涉及对<em>Object</em>、<em>Array</em>、<em>Function</em>的操作。<br>    我曾经问我的朋友<a href="http://www.cnblogs.com/hustskyking/" target="_blank" rel="external">@小胡子哥</a> 怎么学习一个框架？他给我的回答是：“直接看源码。”现在想想深感同意，因为研究源码是最直接的学习途径，可以深入地了解这个框架的思想和精髓，同时也能学习框架作者的编程技巧，提升自己的coding水平。<br>    好了，题外话就说到这里，下面咱们进入正题。</p>
+<h1 id="简化源码看结构"><a href="#简化源码看结构" class="headerlink" title="简化源码看结构"></a>简化源码看结构</h1><p>我这次看的<em>underscore</em>版本是1.3.3，整个文件也就1000多行，我把代码简化了一下，并加入了相关的注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div></pre></td><td class="code"><pre><div class="line">// underscore的代码包裹在一个匿名自执行函数中</div><div class="line">(function() &#123;</div><div class="line">    // 创建一个全局对象, 在浏览器中表示为window对象, 在Node.js中表示global对象</div><div class="line">     var root = this;</div><div class="line"> </div><div class="line">     // 保存&quot;_&quot;(下划线变量)被覆盖之前的值</div><div class="line">     // 如果出现命名冲突或考虑到规范, 可通过_.noConflict()方法恢复&quot;_&quot;被Underscore占用之前的值, 并返回Underscore对象以便重新命名</div><div class="line">     var previousUnderscore = root._;</div><div class="line"> </div><div class="line">     // 创建一个空的对象常量, 便于内部共享使用</div><div class="line">     var breaker = &#123;&#125;;</div><div class="line"> </div><div class="line">     // 将内置对象的原型链缓存在局部变量</div><div class="line">     var ArrayProto = Array.prototype, </div><div class="line">     ObjProto = Object.prototype, </div><div class="line">     FuncProto = Function.prototype;</div><div class="line"> </div><div class="line">     // 将内置对象原型中的常用方法缓存在局部变量</div><div class="line">     var slice = ArrayProto.slice, </div><div class="line">     unshift = ArrayProto.unshift, </div><div class="line">     toString = ObjProto.toString,</div><div class="line">     hasOwnProperty = ObjProto.hasOwnProperty;</div><div class="line"> </div><div class="line">     // 这里定义了一些JavaScript 1.6提供的新方法</div><div class="line">     // 如果宿主环境中支持这些方法则优先调用, 如果宿主环境中没有提供, 则会由Underscore实现</div><div class="line">     var nativeForEach = ArrayProto.forEach, </div><div class="line">     nativeMap = ArrayProto.map, </div><div class="line">     nativeReduce = ArrayProto.reduce, </div><div class="line">     nativeReduceRight = ArrayProto.reduceRight, </div><div class="line">     nativeFilter = ArrayProto.filter, </div><div class="line">     nativeEvery = ArrayProto.every, </div><div class="line">     nativeSome = ArrayProto.some, </div><div class="line">     nativeIndexOf = ArrayProto.indexOf, </div><div class="line">     nativeLastIndexOf = ArrayProto.lastIndexOf, </div><div class="line">     nativeIsArray = Array.isArray, </div><div class="line">     nativeKeys = Object.keys, </div><div class="line">     nativeBind = FuncProto.bind;</div><div class="line"> </div><div class="line">     // 创建对象式的调用方式, 将返回一个Underscore包装器, 包装器对象的原型中包含Underscore所有方法(类似与将DOM对象包装为一个jQuery对象)</div><div class="line">     var _ = function(obj) &#123;</div><div class="line">         // 所有Underscore对象在内部均通过wrapper对象进行构造</div><div class="line">         return new wrapper(obj);</div><div class="line">     &#125;;</div><div class="line"> </div><div class="line">     // 针对不同的宿主环境, 将Undersocre的命名变量存放到不同的对象中</div><div class="line">     if( typeof exports !== &apos;undefined&apos;) &#123;// Node.js环境</div><div class="line">         if( typeof module !== &apos;undefined&apos; &amp;&amp; module.exports) &#123;</div><div class="line">             exports = module.exports = _;</div><div class="line">         &#125;</div><div class="line">         exports._ = _;</div><div class="line">     &#125; else &#123;// 浏览器环境中Underscore的命名变量被挂在window对象中</div><div class="line">         root[&apos;_&apos;] = _;</div><div class="line">     &#125;</div><div class="line"> </div><div class="line">     // 版本声明</div><div class="line">     _.VERSION = &apos;1.3.3&apos;;</div><div class="line"></div><div class="line">    //在_对象上定义各种方法</div><div class="line">    . . . . . .</div><div class="line"> </div><div class="line">     // underscore对象的包装函数</div><div class="line">     var wrapper = function(obj) &#123;</div><div class="line">         // 原始数据存放在包装对象的_wrapped属性中</div><div class="line">         this._wrapped = obj;</div><div class="line">     &#125;;</div><div class="line"> </div><div class="line">     // 将Underscore的原型对象指向wrapper的原型, 因此通过像wrapper原型中添加方法, Underscore对象也会具备同样的方法</div><div class="line">     _.prototype = wrapper.prototype;</div><div class="line"> </div><div class="line">     // 返回一个对象, 如果当前Underscore调用了chain()方法(即_chain属性为true), 则返回一个被包装的Underscore对象, 否则返回对象本身</div><div class="line">    // result函数用于在构造方法链时返回Underscore的包装对象</div><div class="line">     var result = function(obj, chain) &#123;</div><div class="line">         return chain ? _(obj).chain() : obj;</div><div class="line">     &#125;;</div><div class="line"> </div><div class="line">     // 将一个自定义方法添加到Underscore对象中(实际是添加到wrapper的原型中, 而Underscore对象的原型指向了wrapper的原型)</div><div class="line">     var addToWrapper = function(name, func) &#123;</div><div class="line">         // 向wrapper原型中添加一个name函数, 该函数调用func函数, 并支持了方法链的处理</div><div class="line">         wrapper.prototype[name] = function() &#123;</div><div class="line">             // 获取func函数的参数, 并将当前的原始数据添加到第一个参数</div><div class="line">             var args = slice.call(arguments);</div><div class="line">             unshift.call(args, this._wrapped);</div><div class="line">             // 执行函数并返回结果, 并通过result函数对方法链进行封装, 如果当前调用了chain()方法, 则返回封装后的Underscore对象, 否则返回对象本身</div><div class="line">             return result(func.apply(_, args), this._chain);</div><div class="line">         &#125;;</div><div class="line">     &#125;;</div><div class="line"> </div><div class="line">     // 将内部定义的_(即Underscore方法集合对象)中的方法复制到wrapper的原型链中(即Underscore的原型链中)</div><div class="line">     // 这是为了在构造对象式调用的Underscore对象时, 这些对象也会具有内部定义的Underscore方法</div><div class="line">     _.mixin(_);</div><div class="line"> </div><div class="line">     // 将Array.prototype中的相关方法添加到Underscore对象中, 因此在封装后的Underscore对象中也可以直接调用Array.prototype中的方法</div><div class="line">     // 如: _([]).push()</div><div class="line">     each([&apos;pop&apos;, &apos;push&apos;, &apos;reverse&apos;, &apos;shift&apos;, &apos;sort&apos;, &apos;splice&apos;, &apos;unshift&apos;], function(name) &#123;</div><div class="line">         // 获取Array.prototype中对应方法的引用</div><div class="line">         var method = ArrayProto[name];</div><div class="line">         // 将该方法添加到Underscore对象中(实际是添加到wrapper的原型对象, 因此在创建Underscore对象时同时具备了该方法)</div><div class="line">         wrapper.prototype[name] = function() &#123;</div><div class="line">             // _wrapped变量中存储Underscore对象的原始值</div><div class="line">             var wrapped = this._wrapped;</div><div class="line">            // 调用Array对应的方法并返回结果</div><div class="line">             method.apply(wrapped, arguments);</div><div class="line">             var length = wrapped.length;</div><div class="line">             if((name == &apos;shift&apos; || name == &apos;splice&apos;) &amp;&amp; length === 0)</div><div class="line">                 delete wrapped[0];</div><div class="line">             // 即使是对于Array中的方法, Underscore同样支持方法链操作</div><div class="line">             return result(wrapped, this._chain);</div><div class="line">         &#125;;</div><div class="line">     &#125;);</div><div class="line"> </div><div class="line">     // 作用同于上一段代码, 将数组中的一些方法添加到Underscore对象, 并支持了方法链操作</div><div class="line">     // 区别在于上一段代码所添加的函数, 均返回Array对象本身(也可能是封装后的Array), concat, join, slice方法将返回一个新的Array对象(也可能是封装后的Array)</div><div class="line">     each([&apos;concat&apos;, &apos;join&apos;, &apos;slice&apos;], function(name) &#123;</div><div class="line">         var method = ArrayProto[name];</div><div class="line">         wrapper.prototype[name] = function() &#123;</div><div class="line">             return result(method.apply(this._wrapped, arguments), this._chain);</div><div class="line">         &#125;;</div><div class="line">     &#125;);</div><div class="line"> </div><div class="line">     // 对Underscore对象进行链式操作的声明方法</div><div class="line">     wrapper.prototype.chain = function() &#123;</div><div class="line">         // this._chain用来标示当前对象是否使用链式操作</div><div class="line">         // 对于支持方法链操作的数据, 一般在具体方法中会返回一个Underscore对象, 并将原始值存放在_wrapped属性中, 也可以通过value()方法获取原始值</div><div class="line">         this._chain = true;</div><div class="line">         return this;</div><div class="line">     &#125;;</div><div class="line"> </div><div class="line">     // 返回被封装的Underscore对象的原始值(存放在_wrapped属性中)</div><div class="line">     wrapper.prototype.value = function() &#123;</div><div class="line">         return this._wrapped;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">&#125;).call(this);</div></pre></td></tr></table></figure>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p><em>underscore</em>这个库的结构（或者说思路）大致是这样的：<br>        创建一个包装器, 将一些原始数据进行包装，所有的<em>undersocre</em>对象, 内部均通过<em>wrapper</em>函数进行构造和封装<br>        <em>underscore</em>与<em>wrapper</em>的内部关系是:</p>
+<pre><code>        - 内部定义变量*_*, 将*underscore*相关的方法添加到*_*, 这样就可以支持函数式的调用, 如*_.bind()*
+        - 内部定义*wrapper*类, 将*_*的原型对象指向*wrapper*类的原型
+        - 将*underscore*相关的方法添加到*wrapper*原型, 创建的*_*对象就具备了*underscore*的方法
+        - 将*Array*.*prototype*相关方法添加到*wrapper*原型, 创建的*_*对象就具备了*Array.prototype*中的方法
+        - *new _()*时实际创建并返回了一个*wrapper()*对象, 并将原始数组存储到*_wrapped*变量, 并将原始值作为第一个参数调用对应方法
+
+之后我会对underscore中所有方法的具体实现进行介绍，感谢关注 
+</code></pre>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="JoeRay61 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="JoeRay61 Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+            <a href="/tags/underscore/" rel="tag"># underscore</a>
+          
+            <a href="/tags/源码/" rel="tag"># 源码</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/06/03/Underscore源码解析（二）/" rel="prev" title="Underscore源码解析（二）">
+                Underscore源码解析（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/joeray61.png"
+               alt="JoeRay61" />
+          <p class="site-author-name" itemprop="name">JoeRay61</p>
+           
+              <p class="site-description motion-element" itemprop="description">野蛮生长ing ~</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Joe3Ray" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/1997891561" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://schoeu.com/" title="Schoeu" target="_blank">Schoeu</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://xuexb.com/" title="前端小武" target="_blank">前端小武</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简化源码看结构"><span class="nav-number">1.</span> <span class="nav-text">简化源码看结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">2.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JoeRay61</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

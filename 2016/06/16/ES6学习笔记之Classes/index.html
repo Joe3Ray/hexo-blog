@@ -1,0 +1,897 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="es6,javascript," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="JoeRay61" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="简介ES6的Classes是在原型链继承的基础上，由语言本身提供的语法糖，并非是一种全新的继承模式。这使得Javascript有一种更加简洁清晰的方式来实现类的创建和继承。
+语法话不多说，直接上代码。
+定义Classclass Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES6学习笔记之Classes">
+<meta property="og:url" content="http://joeray61.com/2016/06/16/ES6学习笔记之Classes/index.html">
+<meta property="og:site_name" content="JoeRay61">
+<meta property="og:description" content="简介ES6的Classes是在原型链继承的基础上，由语言本身提供的语法糖，并非是一种全新的继承模式。这使得Javascript有一种更加简洁清晰的方式来实现类的创建和继承。
+语法话不多说，直接上代码。
+定义Classclass Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age">
+<meta property="og:updated_time" content="2017-04-04T10:13:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ES6学习笔记之Classes">
+<meta name="twitter:description" content="简介ES6的Classes是在原型链继承的基础上，由语言本身提供的语法糖，并非是一种全新的继承模式。这使得Javascript有一种更加简洁清晰的方式来实现类的创建和继承。
+语法话不多说，直接上代码。
+定义Classclass Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://joeray61.com/2016/06/16/ES6学习笔记之Classes/"/>
+
+
+
+
+
+  <title> ES6学习笔记之Classes | JoeRay61 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JoeRay61</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">make things make sense</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2016/06/16/ES6学习笔记之Classes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ES6学习笔记之Classes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-16T18:13:24+08:00">
+                2016-06-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><code>ES6</code>的<code>Classes</code>是在原型链继承的基础上，由语言本身提供的语法糖，并非是一种全新的继承模式。这使得Javascript有一种更加简洁清晰的方式来实现类的创建和继承。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p>话不多说，直接上代码。</p>
+<h3 id="定义Class"><a href="#定义Class" class="headerlink" title="定义Class"></a>定义Class</h3><pre><code>class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+</code></pre><h3 id="继承Class"><a href="#继承Class" class="headerlink" title="继承Class"></a>继承Class</h3><pre><code>class Student extends Person {
+    constructor(name, age, grade) {
+        super(name, age);
+        this.grade = grade;
+    }
+}
+</code></pre><h3 id="原型链方法"><a href="#原型链方法" class="headerlink" title="原型链方法"></a>原型链方法</h3><pre><code>class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    speak() {
+        console.log(&apos;something...&apos;);
+    }
+}
+</code></pre><p><code>speak</code>就是原型链方法，不需要再繁琐地使用<code>prototype</code>来定义，直接定义在<code>class</code>内部即可。</p>
+<h3 id="静态方法"><a href="#静态方法" class="headerlink" title="静态方法"></a>静态方法</h3><pre><code>class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    static getClassName() {
+        return &apos;Person&apos;;
+    }
+}
+console.log(Person.getClassName());    // Person
+</code></pre><p>静态方法直接用类名来调用就可以了，熟悉面向对象编程的同学应该都不陌生。</p>
+<h3 id="Species"><a href="#Species" class="headerlink" title="Species"></a>Species</h3><p>某些情况下，类里面有一个方法返回的是类的实例，但是你可能希望返回父类的示例，这时候可以使用<code>species pattern</code>来达到目的。</p>
+<p>举个栗子，你实现了一个类叫做<code>MyArray</code>，继承自<code>Array</code>，如果你不使用<code>species pattern</code>，那么调用<code>map</code>方法将会返回<code>MyArray</code>的实例，如果使用了<code>species pattern</code>则能够返回<code>Array</code>的实例。</p>
+<pre><code>class MyArray extends Array {
+    static get [Symbol.species]() {
+        return Array;
+    }
+}
+
+var a = new MyArray(1,2,3);
+var mapped = a.map(x =&gt; x * x);
+
+console.log(mapped instanceof MyArray); // false
+console.log(mapped instanceof Array);   // true
+</code></pre><h3 id="Mixin"><a href="#Mixin" class="headerlink" title="Mixin"></a>Mixin</h3><p>mixin是类的模板。在EcmaScript中，一个类不能继承多个类。这样有些需求就不是很方便。为了解决这个问题，可以使用mixin。</p>
+<pre><code>var Bar = Sub =&gt; class extends Sub {
+    bar() {}
+};
+
+var Baz = Sub =&gt; class extends Sub {
+    baz() {}
+};
+
+class Person {
+    speak() {}
+}
+
+class Student extends Bar(Baz(Person)) {}
+</code></pre><p>这样，<code>Student</code>就可以继承<code>Bar</code>、<code>Baz</code>和<code>Person</code>3个基类了。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><h3 id="提升"><a href="#提升" class="headerlink" title="提升"></a>提升</h3><p>以前使用<code>function</code>来定义类的时候，我们可以在定以前先使用<code>new</code>，由于JS语言的变量提升特性，这样写不会有任何问题，示例如下：</p>
+<pre><code>var joe = new Person(&apos;joe&apos;, 23);
+function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+</code></pre><p>如果使用<code>class</code>来定义类，则必须在定义后才能使用<code>new</code>来进行对象的实例化，如果先<code>new</code>则会报错</p>
+<pre><code>var joe = new Person(&apos;joe&apos;, 23);    // ReferenceError
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+</code></pre><h3 id="严格模式（strict-mode）"><a href="#严格模式（strict-mode）" class="headerlink" title="严格模式（strict mode）"></a>严格模式（strict mode）</h3><p>类声明和类表达式都是在严格模式下执行的。</p>
+<h3 id="类表达式"><a href="#类表达式" class="headerlink" title="类表达式"></a>类表达式</h3><p>跟<code>function</code>一样，<code>class</code>也可以使用表达式来定义。类表达式可以命名也可以匿名。当类表达式有命名时，该命名仅作为类内部使用。</p>
+<pre><code>var Person = class Man {
+    getName() {
+        return Man.name;
+    }
+};
+var p = new Person();
+console.log(p.getName());    // Man
+console.log(Man);    // ReferenceError: Man is not defined
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes" target="_blank" rel="external">Classes</a></li>
+<li><a href="http://exploringjs.com/es6/ch_classes.html" target="_blank" rel="external">http://exploringjs.com/es6/ch_classes.html</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="JoeRay61 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="JoeRay61 Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/es6/" rel="tag"># es6</a>
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/26/ES6学习笔记之箭头函数/" rel="next" title="ES6学习笔记之箭头函数">
+                <i class="fa fa-chevron-left"></i> ES6学习笔记之箭头函数
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/29/ES6学习笔记之模块/" rel="prev" title="ES6学习笔记之模块">
+                ES6学习笔记之模块 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/joeray61.png"
+               alt="JoeRay61" />
+          <p class="site-author-name" itemprop="name">JoeRay61</p>
+           
+              <p class="site-description motion-element" itemprop="description">野蛮生长ing ~</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Joe3Ray" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/1997891561" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://schoeu.com/" title="Schoeu" target="_blank">Schoeu</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://xuexb.com/" title="前端小武" target="_blank">前端小武</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法"><span class="nav-number">2.</span> <span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义Class"><span class="nav-number">2.1.</span> <span class="nav-text">定义Class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承Class"><span class="nav-number">2.2.</span> <span class="nav-text">继承Class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原型链方法"><span class="nav-number">2.3.</span> <span class="nav-text">原型链方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态方法"><span class="nav-number">2.4.</span> <span class="nav-text">静态方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Species"><span class="nav-number">2.5.</span> <span class="nav-text">Species</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mixin"><span class="nav-number">2.6.</span> <span class="nav-text">Mixin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特点"><span class="nav-number">3.</span> <span class="nav-text">特点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#提升"><span class="nav-number">3.1.</span> <span class="nav-text">提升</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#严格模式（strict-mode）"><span class="nav-number">3.2.</span> <span class="nav-text">严格模式（strict mode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类表达式"><span class="nav-number">3.3.</span> <span class="nav-text">类表达式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JoeRay61</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

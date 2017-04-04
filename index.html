@@ -331,17 +331,6 @@
 
                 
                 
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/Vue/" itemprop="url" rel="index">
-                    <span itemprop="name">Vue</span>
-                  </a>
-                </span>
-
-                
-                
               
             </span>
           
@@ -453,9 +442,1923 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/08/Vue原理解析之Virtual-Dom/" itemprop="url">
+                  Vue原理解析之Virtual Dom
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-08T17:54:55+08:00">
+                2017-02-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><code>DOM</code>是文档对象模型(<code>Document Object Model</code>)的简写，在浏览器中我们可以通过js来操作<code>DOM</code>，但是这样的操作性能很差，于是<code>Virtual Dom</code>应运而生。我的理解，<code>Virtual Dom</code>就是在js中模拟<code>DOM</code>对象树来优化<code>DOM</code>操作的一种技术或思路。</p>
+<p>本文将对于Vue框架2.1.8版本中使用的<code>Virtual Dom</code>进行分析。</p>
+<h2 id="VNode对象"><a href="#VNode对象" class="headerlink" title="VNode对象"></a>VNode对象</h2><p>一个VNode的实例对象包含了以下属性</p>
+<ul>
+<li><code>tag</code>: 当前节点的标签名</li>
+<li><code>data</code>: 当前节点的数据对象，具体包含哪些字段可以参考vue源码<code>types/vnode.d.ts</code>中对<code>VNodeData</code>的定义<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img1.png" alt="img1.png" title=""></li>
+<li><code>children</code>: 数组类型，包含了当前节点的子节点</li>
+<li><code>text</code>: 当前节点的文本，一般文本节点或注释节点会有该属性</li>
+<li><code>elm</code>: 当前虚拟节点对应的真实的dom节点</li>
+<li><code>ns</code>: 节点的namespace</li>
+<li><code>context</code>: 编译作用域</li>
+<li><code>functionalContext</code>: 函数化组件的作用域</li>
+<li><code>key</code>: 节点的key属性，用于作为节点的标识，有利于patch的优化</li>
+<li><code>componentOptions</code>: 创建组件实例时会用到的选项信息</li>
+<li><code>child</code>: 当前节点对应的组件实例</li>
+<li><code>parent</code>: 组件的占位节点</li>
+<li><code>raw</code>: raw html</li>
+<li><code>isStatic</code>: 静态节点的标识</li>
+<li><code>isRootInsert</code>: 是否作为根节点插入，被<code>&lt;transition&gt;</code>包裹的节点，该属性的值为<code>false</code></li>
+<li><code>isComment</code>: 当前节点是否是注释节点</li>
+<li><code>isCloned</code>: 当前节点是否为克隆节点</li>
+<li><code>isOnce</code>: 当前节点是否有<code>v-once</code>指令</li>
+</ul>
+<h2 id="VNode分类"><a href="#VNode分类" class="headerlink" title="VNode分类"></a>VNode分类</h2><img src="/2017/02/08/Vue原理解析之Virtual-Dom/img2.png" alt="img2.png" title="">
+<p><code>VNode</code>可以理解为vue框架的虚拟dom的基类，通过<code>new</code>实例化的<code>VNode</code>大致可以分为几类</p>
+<ul>
+<li><code>EmptyVNode</code>: 没有内容的注释节点</li>
+<li><code>TextVNode</code>: 文本节点</li>
+<li><code>ElementVNode</code>: 普通元素节点</li>
+<li><code>ComponentVNode</code>: 组件节点</li>
+<li><code>CloneVNode</code>: 克隆节点，可以是以上任意类型的节点，唯一的区别在于<code>isCloned</code>属性为<code>true</code></li>
+<li><code>...</code></li>
+</ul>
+<h2 id="createElement解析"><a href="#createElement解析" class="headerlink" title="createElement解析"></a>createElement解析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line">const SIMPLE_NORMALIZE = 1</div><div class="line">const ALWAYS_NORMALIZE = 2</div><div class="line"></div><div class="line">function createElement (context, tag, data, children, normalizationType, alwaysNormalize) &#123;</div><div class="line">  // 兼容不传data的情况</div><div class="line">  if (Array.isArray(data) || isPrimitive(data)) &#123;</div><div class="line">    normalizationType = children</div><div class="line">    children = data</div><div class="line">    data = undefined</div><div class="line">  &#125;</div><div class="line">  // 如果alwaysNormalize是true</div><div class="line">  // 那么normalizationType应该设置为常量ALWAYS_NORMALIZE的值</div><div class="line">  if (alwaysNormalize) normalizationType = ALWAYS_NORMALIZE</div><div class="line">  // 调用_createElement创建虚拟节点</div><div class="line">  return _createElement(context, tag, data, children, normalizationType)</div><div class="line">&#125;</div><div class="line"></div><div class="line">function _createElement (context, tag, data, children, normalizationType) &#123;</div><div class="line">  /**</div><div class="line">   * 如果存在data.__ob__，说明data是被Observer观察的数据</div><div class="line">   * 不能用作虚拟节点的data</div><div class="line">   * 需要抛出警告，并返回一个空节点</div><div class="line">   * </div><div class="line">   * 被监控的data不能被用作vnode渲染的数据的原因是：</div><div class="line">   * data在vnode渲染过程中可能会被改变，这样会触发监控，导致不符合预期的操作</div><div class="line">   */</div><div class="line">  if (data &amp;&amp; data.__ob__) &#123;</div><div class="line">    process.env.NODE_ENV !== &apos;production&apos; &amp;&amp; warn(</div><div class="line">      `Avoid using observed data object as vnode data: $&#123;JSON.stringify(data)&#125;\n` +</div><div class="line">      &apos;Always create fresh vnode data objects in each render!&apos;,</div><div class="line">      context</div><div class="line">    )</div><div class="line">    return createEmptyVNode()</div><div class="line">  &#125;</div><div class="line">  // 当组件的is属性被设置为一个falsy的值</div><div class="line">  // Vue将不会知道要把这个组件渲染成什么</div><div class="line">  // 所以渲染一个空节点</div><div class="line">  if (!tag) &#123;</div><div class="line">    return createEmptyVNode()</div><div class="line">  &#125;</div><div class="line">  // 作用域插槽</div><div class="line">  if (Array.isArray(children) &amp;&amp;</div><div class="line">      typeof children[0] === &apos;function&apos;) &#123;</div><div class="line">    data = data || &#123;&#125;</div><div class="line">    data.scopedSlots = &#123; default: children[0] &#125;</div><div class="line">    children.length = 0</div><div class="line">  &#125;</div><div class="line">  // 根据normalizationType的值，选择不同的处理方法</div><div class="line">  if (normalizationType === ALWAYS_NORMALIZE) &#123;</div><div class="line">    children = normalizeChildren(children)</div><div class="line">  &#125; else if (normalizationType === SIMPLE_NORMALIZE) &#123;</div><div class="line">    children = simpleNormalizeChildren(children)</div><div class="line">  &#125;</div><div class="line">  let vnode, ns</div><div class="line">  // 如果标签名是字符串类型</div><div class="line">  if (typeof tag === &apos;string&apos;) &#123;</div><div class="line">    let Ctor</div><div class="line">    // 获取标签名的命名空间</div><div class="line">    ns = config.getTagNamespace(tag)</div><div class="line">    // 判断是否为保留标签</div><div class="line">    if (config.isReservedTag(tag)) &#123;</div><div class="line">      // 如果是保留标签,就创建一个这样的vnode</div><div class="line">      vnode = new VNode(</div><div class="line">        config.parsePlatformTagName(tag), data, children,</div><div class="line">        undefined, undefined, context</div><div class="line">      )</div><div class="line">      // 如果不是保留标签，那么我们将尝试从vm的components上查找是否有这个标签的定义</div><div class="line">    &#125; else if ((Ctor = resolveAsset(context.$options, &apos;components&apos;, tag))) &#123;</div><div class="line">      // 如果找到了这个标签的定义，就以此创建虚拟组件节点</div><div class="line">      vnode = createComponent(Ctor, data, context, children, tag)</div><div class="line">    &#125; else &#123;</div><div class="line">      // 兜底方案，正常创建一个vnode</div><div class="line">      vnode = new VNode(</div><div class="line">        tag, data, children,</div><div class="line">        undefined, undefined, context</div><div class="line">      )</div><div class="line">    &#125;</div><div class="line">    // 当tag不是字符串的时候，我们认为tag是组件的构造类</div><div class="line">    // 所以直接创建</div><div class="line">  &#125; else &#123;</div><div class="line">    vnode = createComponent(tag, data, context, children)</div><div class="line">  &#125;</div><div class="line">  // 如果有vnode</div><div class="line">  if (vnode) &#123;</div><div class="line">    // 如果有namespace，就应用下namespace，然后返回vnode</div><div class="line">    if (ns) applyNS(vnode, ns)</div><div class="line">    return vnode</div><div class="line">  // 否则，返回一个空节点</div><div class="line">  &#125; else &#123;</div><div class="line">    return createEmptyVNode()</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>简单的梳理了一个流程图，可以参考下</p>
+<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img3.png" alt="img3.png" title="">
+<h2 id="patch原理"><a href="#patch原理" class="headerlink" title="patch原理"></a>patch原理</h2><p><code>patch</code>函数的定义在<code>src/core/vdom/patch.js</code>中，我们先来看下这个函数的逻辑</p>
+<p><code>patch</code>函数接收6个参数：</p>
+<ul>
+<li><code>oldVnode</code>: 旧的虚拟节点或旧的真实dom节点</li>
+<li><code>vnode</code>: 新的虚拟节点</li>
+<li><code>hydrating</code>: 是否要跟真是dom混合</li>
+<li><code>removeOnly</code>: 特殊flag，用于<code>&lt;transition-group&gt;</code>组件</li>
+<li><code>parentElm</code>: 父节点</li>
+<li><code>refElm</code>: 新节点将插入到<code>refElm</code>之前</li>
+</ul>
+<p><code>patch</code>的策略是：</p>
+<ol>
+<li>如果<code>vnode</code>不存在但是<code>oldVnode</code>存在，说明意图是要销毁老节点，那么就调用<code>invokeDestroyHook(oldVnode)</code>来进行销毁</li>
+<li>如果<code>oldVnode</code>不存在但是<code>vnode</code>存在，说明意图是要创建新节点，那么就调用<code>createElm</code>来创建新节点</li>
+<li>当<code>vnode</code>和<code>oldVnode</code>都存在时<ul>
+<li>如果<code>oldVnode</code>和<code>vnode</code>是同一个节点，就调用<code>patchVnode</code>来进行<code>patch</code></li>
+<li>当<code>vnode</code>和<code>oldVnode</code>不是同一个节点时，如果<code>oldVnode</code>是真实dom节点或<code>hydrating</code>设置为<code>true</code>，需要用<code>hydrate</code>函数将虚拟dom和真是dom进行映射，然后将<code>oldVnode</code>设置为对应的虚拟dom，找到<code>oldVnode.elm</code>的父节点，根据vnode创建一个真实dom节点并插入到该父节点中<code>oldVnode.elm</code>的位置</li>
+</ul>
+</li>
+</ol>
+<p>这里面值得一提的是<code>patchVnode</code>函数，因为真正的patch算法是由它来实现的（patchVnode中更新子节点的算法其实是在<code>updateChildren</code>函数中实现的，为了便于理解，我统一放到<code>patchVnode</code>中来解释）。</p>
+<p><code>patchVnode</code>算法是：</p>
+<ol>
+<li>如果<code>oldVnode</code>跟<code>vnode</code>完全一致，那么不需要做任何事情</li>
+<li>如果<code>oldVnode</code>跟<code>vnode</code>都是静态节点，且具有相同的<code>key</code>，当<code>vnode</code>是克隆节点或是<code>v-once</code>指令控制的节点时，只需要把<code>oldVnode.elm</code>和<code>oldVnode.child</code>都复制到<code>vnode</code>上，也不用再有其他操作</li>
+<li>否则，如果<code>vnode</code>不是文本节点或注释节点<ul>
+<li>如果<code>oldVnode</code>和<code>vnode</code>都有子节点，且2方的子节点不完全一致，就执行更新子节点的操作（这一部分其实是在<code>updateChildren</code>函数中实现），算法如下<ul>
+<li>分别获取<code>oldVnode</code>和<code>vnode</code>的<code>firstChild</code>、<code>lastChild</code>，赋值给<code>oldStartVnode</code>、<code>oldEndVnode</code>、<code>newStartVnode</code>、<code>newEndVnode</code></li>
+<li>如果<code>oldStartVnode</code>和<code>newStartVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，然后将<code>oldStartVnode</code>和<code>newStartVnode</code>都设置为下一个子节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img4.png" alt="img4.png" title=""></li>
+<li>如果<code>oldEndVnode</code>和<code>newEndVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，然后将<code>oldEndVnode</code>和<code>newEndVnode</code>都设置为上一个子节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img5.png" alt="img5.png" title=""></li>
+<li>如果<code>oldStartVnode</code>和<code>newEndVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，如果<code>removeOnly</code>是<code>false</code>，那么可以把<code>oldStartVnode.elm</code>移动到<code>oldEndVnode.elm</code>之后，然后把<code>oldStartVnode</code>设置为下一个节点，<code>newEndVnode</code>设置为上一个节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img6.png" alt="img6.png" title=""></li>
+<li>如果<code>newStartVnode</code>和<code>oldEndVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，如果<code>removeOnly</code>是<code>false</code>，那么可以把<code>oldEndVnode.elm</code>移动到<code>oldStartVnode.elm</code>之前，然后把<code>newStartVnode</code>设置为下一个节点，<code>oldEndVnode</code>设置为上一个节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img7.png" alt="img7.png" title=""></li>
+<li>如果以上都不匹配，就尝试在<code>oldChildren</code>中寻找跟<code>newStartVnode</code>具有相同<code>key</code>的节点，如果找不到相同<code>key</code>的节点，说明<code>newStartVnode</code>是一个新节点，就创建一个，然后把<code>newStartVnode</code>设置为下一个节点</li>
+<li>如果上一步找到了跟<code>newStartVnode</code>相同<code>key</code>的节点，那么通过其他属性的比较来判断这2个节点是否是同一个节点，如果是，就调用<code>patchVnode</code>进行<code>patch</code>，如果<code>removeOnly</code>是<code>false</code>，就把<code>newStartVnode.elm</code>插入到<code>oldStartVnode.elm</code>之前，把<code>newStartVnode</code>设置为下一个节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img8.png" alt="img8.png" title=""></li>
+<li>如果在<code>oldChildren</code>中没有寻找到<code>newStartVnode</code>的同一节点，那就创建一个新节点，把<code>newStartVnode</code>设置为下一个节点，重复上述流程</li>
+<li>如果<code>oldStartVnode</code>跟<code>oldEndVnode</code>重合了，并且<code>newStartVnode</code>跟<code>newEndVnode</code>也重合了，这个循环就结束了</li>
+</ul>
+</li>
+<li>如果只有<code>oldVnode</code>有子节点，那就把这些节点都删除</li>
+<li>如果只有<code>vnode</code>有子节点，那就创建这些子节点</li>
+<li>如果<code>oldVnode</code>和<code>vnode</code>都没有子节点，但是<code>oldVnode</code>是文本节点或注释节点，就把<code>vnode.elm</code>的文本设置为空字符串</li>
+</ul>
+</li>
+<li>如果<code>vnode</code>是文本节点或注释节点，但是<code>vnode.text != oldVnode.text</code>时，只需要更新<code>vnode.elm</code>的文本内容就可以</li>
+</ol>
+<h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p><code>patch</code>提供了5个生命周期钩子，分别是</p>
+<ul>
+<li><code>create</code>: 创建patch时</li>
+<li><code>activate</code>: 激活组件时</li>
+<li><code>update</code>: 更新节点时</li>
+<li><code>remove</code>: 移除节点时</li>
+<li><code>destroy</code>: 销毁节点时</li>
+</ul>
+<p>这些钩子是提供给Vue内部的<code>directives</code>/<code>ref</code>/<code>attrs</code>/<code>style</code>等模块使用的，方便这些模块在patch的不同阶段进行相应的操作，这里模块定义在<code>src/core/vdom/modules</code>和<code>src/platforms/web/runtime/modules</code>2个目录中</p>
+<p><code>vnode</code>也提供了生命周期钩子，分别是</p>
+<ul>
+<li><code>init</code>: vdom初始化时</li>
+<li><code>create</code>: vdom创建时</li>
+<li><code>prepatch</code>: patch之前</li>
+<li><code>insert</code>: vdom插入后</li>
+<li><code>update</code>: vdom更新前</li>
+<li><code>postpatch</code>: patch之后</li>
+<li><code>remove</code>: vdom移除时</li>
+<li><code>destroy</code>: vdom销毁时</li>
+</ul>
+<p>vue组件的生命周期底层其实就依赖于vnode的生命周期，在<code>src/core/vdom/create-component.js</code>中我们可以看到，vue为自己的组件vnode已经写好了默认的<code>init</code>/<code>prepatch</code>/<code>insert</code>/<code>destroy</code>，而vue组件的<code>mounted</code>/<code>activated</code>就是在<code>insert</code>中触发的，<code>deactivated</code>就是在<code>destroy</code>中触发的</p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p>在Vue里面，<code>Vue.prototype.$createElement</code>对应vdom的<code>createElement</code>方法，<code>Vue.prototype.__patch__</code>对应<code>patch</code>方法，我写了个简单的demo来验证下功能</p>
+<p></p><p data-height="265" data-theme-id="0" data-slug-hash="rjZKZz" data-default-tab="html,result" data-user="JoeRay" data-embed-version="2" data-pen-title="Vue Virtual Dom" class="codepen">See the Pen <a href="http://codepen.io/JoeRay/pen/rjZKZz/" target="_blank" rel="external">Vue Virtual Dom</a> by zhulei (<a href="http://codepen.io/JoeRay" target="_blank" rel="external">@JoeRay</a>) on <a href="http://codepen.io" target="_blank" rel="external">CodePen</a>.</p><p></p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2016/12/18/git常用命令速查表/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/18/git常用命令速查表/" itemprop="url">
+                  git常用命令速查表
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-18T18:03:40+08:00">
+                2016-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要是用来记录一些在git管理的项目中常见的场景及其对应的命令，方便自己和他人使用的时候快速查询。如有不对，敬请指正。</p>
+<h3 id="查看某个git命令的帮助文档"><a href="#查看某个git命令的帮助文档" class="headerlink" title="查看某个git命令的帮助文档"></a>查看某个git命令的帮助文档</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git help [command]</div></pre></td></tr></table></figure>
+<h3 id="查看各个文件的状态"><a href="#查看各个文件的状态" class="headerlink" title="查看各个文件的状态"></a>查看各个文件的状态</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git status</div></pre></td></tr></table></figure>
+<h3 id="clone一个仓库"><a href="#clone一个仓库" class="headerlink" title="clone一个仓库"></a>clone一个仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone [url]</div></pre></td></tr></table></figure>
+<h3 id="初始化一个仓库"><a href="#初始化一个仓库" class="headerlink" title="初始化一个仓库"></a>初始化一个仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git init</div></pre></td></tr></table></figure>
+<h3 id="将文件放到暂存区"><a href="#将文件放到暂存区" class="headerlink" title="将文件放到暂存区"></a>将文件放到暂存区</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git add [file-name]</div></pre></td></tr></table></figure>
+<h3 id="提交"><a href="#提交" class="headerlink" title="提交"></a>提交</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git commit</div></pre></td></tr></table></figure>
+<h3 id="停止跟踪文件并删除文件"><a href="#停止跟踪文件并删除文件" class="headerlink" title="停止跟踪文件并删除文件"></a>停止跟踪文件并删除文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git rm [file-name]</div></pre></td></tr></table></figure>
+<h3 id="停止跟踪并删除已修改且添加到暂存区的文件"><a href="#停止跟踪并删除已修改且添加到暂存区的文件" class="headerlink" title="停止跟踪并删除已修改且添加到暂存区的文件"></a>停止跟踪并删除已修改且添加到暂存区的文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git rm -f [file-name]</div></pre></td></tr></table></figure>
+<h3 id="停止跟踪但不删除文件"><a href="#停止跟踪但不删除文件" class="headerlink" title="停止跟踪但不删除文件"></a>停止跟踪但不删除文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git rm --cached [file-name]</div></pre></td></tr></table></figure>
+<h3 id="移动文件或修改文件名"><a href="#移动文件或修改文件名" class="headerlink" title="移动文件或修改文件名"></a>移动文件或修改文件名</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git mv [old-name] [new-name]</div></pre></td></tr></table></figure>
+<h3 id="显示已经放到暂存区的文件的修改"><a href="#显示已经放到暂存区的文件的修改" class="headerlink" title="显示已经放到暂存区的文件的修改"></a>显示已经放到暂存区的文件的修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git diff --cached</div></pre></td></tr></table></figure>
+<h3 id="显示未放到暂存区的文件的修改"><a href="#显示未放到暂存区的文件的修改" class="headerlink" title="显示未放到暂存区的文件的修改"></a>显示未放到暂存区的文件的修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git diff [path/to/file]</div></pre></td></tr></table></figure>
+<h3 id="显示当前仓库的所有本地分支"><a href="#显示当前仓库的所有本地分支" class="headerlink" title="显示当前仓库的所有本地分支"></a>显示当前仓库的所有本地分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch</div></pre></td></tr></table></figure>
+<h3 id="显示当前仓库的所有远程分支"><a href="#显示当前仓库的所有远程分支" class="headerlink" title="显示当前仓库的所有远程分支"></a>显示当前仓库的所有远程分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch -r</div></pre></td></tr></table></figure>
+<h3 id="显示当前仓库的所有分支（包括本地和远程）"><a href="#显示当前仓库的所有分支（包括本地和远程）" class="headerlink" title="显示当前仓库的所有分支（包括本地和远程）"></a>显示当前仓库的所有分支（包括本地和远程）</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch -a</div></pre></td></tr></table></figure>
+<h3 id="创建一个本地分支"><a href="#创建一个本地分支" class="headerlink" title="创建一个本地分支"></a>创建一个本地分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="切换到某个本地分支"><a href="#切换到某个本地分支" class="headerlink" title="切换到某个本地分支"></a>切换到某个本地分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git checkout [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="将某个分支合并到当前分支"><a href="#将某个分支合并到当前分支" class="headerlink" title="将某个分支合并到当前分支"></a>将某个分支合并到当前分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git merge [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="删除已经被合并的分支"><a href="#删除已经被合并的分支" class="headerlink" title="删除已经被合并的分支"></a>删除已经被合并的分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch -d [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="删除还未被合并的分支"><a href="#删除还未被合并的分支" class="headerlink" title="删除还未被合并的分支"></a>删除还未被合并的分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch -D [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="合并代码后还未提交，此时希望撤销合并"><a href="#合并代码后还未提交，此时希望撤销合并" class="headerlink" title="合并代码后还未提交，此时希望撤销合并"></a>合并代码后还未提交，此时希望撤销合并</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git reset --hard HEAD</div></pre></td></tr></table></figure>
+<h3 id="查看所有的提交"><a href="#查看所有的提交" class="headerlink" title="查看所有的提交"></a>查看所有的提交</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git log</div></pre></td></tr></table></figure>
+<h3 id="查看所有提交及每个提交对应的代码diff"><a href="#查看所有提交及每个提交对应的代码diff" class="headerlink" title="查看所有提交及每个提交对应的代码diff"></a>查看所有提交及每个提交对应的代码diff</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git log -p</div></pre></td></tr></table></figure>
+<h3 id="查看所有提交，以及每个提交涉及的文件，以及这些文件删除-添加了多少行"><a href="#查看所有提交，以及每个提交涉及的文件，以及这些文件删除-添加了多少行" class="headerlink" title="查看所有提交，以及每个提交涉及的文件，以及这些文件删除/添加了多少行"></a>查看所有提交，以及每个提交涉及的文件，以及这些文件删除/添加了多少行</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git log --stat</div></pre></td></tr></table></figure>
+<h3 id="查看当前工作目录与某个分支的差别"><a href="#查看当前工作目录与某个分支的差别" class="headerlink" title="查看当前工作目录与某个分支的差别"></a>查看当前工作目录与某个分支的差别</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git diff [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="查看当前工作目录下的某个目录与某个分支的差别"><a href="#查看当前工作目录下的某个目录与某个分支的差别" class="headerlink" title="查看当前工作目录下的某个目录与某个分支的差别"></a>查看当前工作目录下的某个目录与某个分支的差别</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git diff [branch-name] -- [path]</div></pre></td></tr></table></figure>
+<h3 id="修改最后一次提交"><a href="#修改最后一次提交" class="headerlink" title="修改最后一次提交"></a>修改最后一次提交</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git commit --amend</div></pre></td></tr></table></figure>
+<h3 id="撤销已暂存的文件"><a href="#撤销已暂存的文件" class="headerlink" title="撤销已暂存的文件"></a>撤销已暂存的文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git reset HEAD [file-name]</div></pre></td></tr></table></figure>
+<h3 id="撤销对文件的修改"><a href="#撤销对文件的修改" class="headerlink" title="撤销对文件的修改"></a>撤销对文件的修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git checkout -- [file-name]</div></pre></td></tr></table></figure>
+<h3 id="查看当前配置的远程仓库"><a href="#查看当前配置的远程仓库" class="headerlink" title="查看当前配置的远程仓库"></a>查看当前配置的远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git remote</div></pre></td></tr></table></figure>
+<h3 id="查看当前配置的远程仓库和对应的地址"><a href="#查看当前配置的远程仓库和对应的地址" class="headerlink" title="查看当前配置的远程仓库和对应的地址"></a>查看当前配置的远程仓库和对应的地址</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git remote -v</div></pre></td></tr></table></figure>
+<h3 id="添加远程仓库"><a href="#添加远程仓库" class="headerlink" title="添加远程仓库"></a>添加远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git remote add [remote-name] [url]</div></pre></td></tr></table></figure>
+<h3 id="从远程仓库抓去数据"><a href="#从远程仓库抓去数据" class="headerlink" title="从远程仓库抓去数据"></a>从远程仓库抓去数据</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git fetch [remote-name] [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="推送数据到远程仓库"><a href="#推送数据到远程仓库" class="headerlink" title="推送数据到远程仓库"></a>推送数据到远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git push [remote-name] [branch-name]</div></pre></td></tr></table></figure>
+<h3 id="查看某个远程仓库信息"><a href="#查看某个远程仓库信息" class="headerlink" title="查看某个远程仓库信息"></a>查看某个远程仓库信息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git remote show [remote-name]</div></pre></td></tr></table></figure>
+<h3 id="重命名远程仓库"><a href="#重命名远程仓库" class="headerlink" title="重命名远程仓库"></a>重命名远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git remote rename [old-name] [new-name]</div></pre></td></tr></table></figure>
+<h3 id="删除某个远程仓库"><a href="#删除某个远程仓库" class="headerlink" title="删除某个远程仓库"></a>删除某个远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git remote rm [remote-name]</div></pre></td></tr></table></figure>
+<h3 id="显示已有的标签"><a href="#显示已有的标签" class="headerlink" title="显示已有的标签"></a>显示已有的标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git tag</div></pre></td></tr></table></figure>
+<h3 id="搜索特定tag"><a href="#搜索特定tag" class="headerlink" title="搜索特定tag"></a>搜索特定tag</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git tag -l [keyword]</div></pre></td></tr></table></figure>
+<h3 id="创建轻量级标签"><a href="#创建轻量级标签" class="headerlink" title="创建轻量级标签"></a>创建轻量级标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git tag [tag-name]</div></pre></td></tr></table></figure>
+<h3 id="创建含附注标签"><a href="#创建含附注标签" class="headerlink" title="创建含附注标签"></a>创建含附注标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git tag -a [tag-name] -m [msg]</div></pre></td></tr></table></figure>
+<h3 id="给之前的某个提交加标签"><a href="#给之前的某个提交加标签" class="headerlink" title="给之前的某个提交加标签"></a>给之前的某个提交加标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git tag -a [tag-name] [hash]</div></pre></td></tr></table></figure>
+<h3 id="查看某个标签的信息"><a href="#查看某个标签的信息" class="headerlink" title="查看某个标签的信息"></a>查看某个标签的信息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git show [tag-name]</div></pre></td></tr></table></figure>
+<h3 id="将标签推送到远程仓库"><a href="#将标签推送到远程仓库" class="headerlink" title="将标签推送到远程仓库"></a>将标签推送到远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git push [remote-name] [tag-name]</div></pre></td></tr></table></figure>
+<h3 id="将所有本地标签一次推送到远程仓库"><a href="#将所有本地标签一次推送到远程仓库" class="headerlink" title="将所有本地标签一次推送到远程仓库"></a>将所有本地标签一次推送到远程仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git push [remote-name] --tags</div></pre></td></tr></table></figure>
+<h3 id="将分支b衍合入分支a"><a href="#将分支b衍合入分支a" class="headerlink" title="将分支b衍合入分支a"></a>将分支b衍合入分支a</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git checkout b</div><div class="line">git rebase a</div></pre></td></tr></table></figure>
+<h3 id="切换到另一个分支前，你并不想把当前分支上的修改提交的话，可以使用储藏功能"><a href="#切换到另一个分支前，你并不想把当前分支上的修改提交的话，可以使用储藏功能" class="headerlink" title="切换到另一个分支前，你并不想把当前分支上的修改提交的话，可以使用储藏功能"></a>切换到另一个分支前，你并不想把当前分支上的修改提交的话，可以使用储藏功能</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git stash</div></pre></td></tr></table></figure>
+<h3 id="显示所有储藏"><a href="#显示所有储藏" class="headerlink" title="显示所有储藏"></a>显示所有储藏</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git stash list</div></pre></td></tr></table></figure>
+<h3 id="应用你的储藏"><a href="#应用你的储藏" class="headerlink" title="应用你的储藏"></a>应用你的储藏</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git stash apply [stash-name]</div></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2016/09/25/webpack入门指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/25/webpack入门指南/" itemprop="url">
+                  webpack入门指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-25T18:06:23+08:00">
+                2016-09-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>本文是一个简单的webpack入门教程，希望能够帮助webpack初学者快速上手。如有错误，敬请斧正。<br>本文所有的demo都可以在<a href="https://github.com/Joe3Ray/webpack-demo/tree/master" target="_blank" rel="external">webpack-demo</a>里找到，<code>git clone</code>之后需要执行<code>npm install</code>安装所有依赖包。</p>
+</blockquote>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><code>webpack</code>是一个模块打包工具，出自德国开发者<code>Tobias Koppers</code>之手，处理速度很快。在<code>webpack</code>看来，一切资源都可以是一个模块，不仅限于js文件。正是由于这些特点，使得<code>webpack</code>可以替代<code>Grunt</code>和<code>Gulp</code>，成为了目前业内最火的前端构建工具。</p>
+<img src="/2016/09/25/webpack入门指南/img1.png" alt="img1.png" title="">
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>webpack可以安装到全局，也可以作为项目的依赖工具安装到项目中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 全局安装</div><div class="line">$ npm install -g webpack</div><div class="line">$ npm install -g webpack-dev-server</div></pre></td></tr></table></figure>
+<p>如果报没有权限的话，在命令前面加上<code>sudo</code>就可以了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 局部安装</div><div class="line">$ npm install --save-dev webpack</div><div class="line">$ npm install --save-dev webpack-dev-server</div></pre></td></tr></table></figure>
+<p>可以看到，我们在安装<code>webpack</code>的同时，也安装了<code>webpack-dev-server</code>。那么<code>webpack-dev-server</code>是什么呢？它是一个轻量级的基于<code>express</code>的<code>node.js</code>服务器，用来服务资源文件。不是必须的，但是建议一起安装。</p>
+<h1 id="命令行"><a href="#命令行" class="headerlink" title="命令行"></a>命令行</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ webpack main.js bundle.js</div></pre></td></tr></table></figure>
+<p>以上是直接使用<code>webpack</code>命令行来进行打包的命令，把<code>main.js</code>构建成<code>bundle.js</code>，具体示例可以查看<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo1" target="_blank" rel="external">demo1</a>，在文件夹中执行上方的命令即可。</p>
+<p><code>webpack</code>有一些参数是我们应该要知道的</p>
+<ul>
+<li><code>webpack</code>: 构建一次开发版本</li>
+<li><code>webpack -p</code>: 构建一次产品版本，与开发版本的区别是会对文件进行压缩</li>
+<li><code>webpack -d</code>: 添加<code>source map</code></li>
+<li><code>webpack --watch</code>: 监听文件的改动，持续增量构建</li>
+<li><code>webpack --colors</code>: 让命令行的输出更好看一点（实际使用<code>zsh</code>的命令行时发现并没有区别）</li>
+</ul>
+<h1 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h1><p><code>webpack</code>还有很多强大的功能，这些都可以在命令行使用，但是如果都写在命令行，既不方便使用，也不能直观地反映各个配置项，这时候，就需要配置文件登场了。</p>
+<p><code>webpack</code>默认使用的配置文件名是<code>webpack.config.js</code>，也可以通过<code>--config</code>参数在命令行指定另一个命名的配置文件。配置文件其实也是一个模块，所有的构建信息都放在<code>module.exports</code>中。下面我们就来讲一讲各个重要的配置项。</p>
+<blockquote>
+<p>以下各个示例请在各demo文件夹中执行<code>webpack-dev-server</code>进行查看</p>
+</blockquote>
+<h2 id="入口文件"><a href="#入口文件" class="headerlink" title="入口文件"></a>入口文件</h2><p>入口文件的配置项名称是<code>entry</code>，代表了<code>webpack</code>给整个项目进行打包的一个主入口，可以搭配<code>output</code>属性指定的输出文件来使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;main.js&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo2&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">document.write(&apos;&lt;h1&gt;Hello Webpack!&lt;/h1&gt;&apos;);</div></pre></td></tr></table></figure>
+<p>示例见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo2" target="_blank" rel="external">demo2</a></p>
+<h2 id="多入口文件"><a href="#多入口文件" class="headerlink" title="多入口文件"></a>多入口文件</h2><p>在多页的应用中，我们需要有多个入口文件，这在<code>webpack</code>中也是可以支持的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &#123;</div><div class="line">        profile: &apos;./profile.js&apos;,</div><div class="line">        feed: &apos;./feed.js&apos;</div><div class="line">    &#125;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;[name].bundle.js&apos;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// feed.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo3-Feed&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;feed.bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// feed.js</div><div class="line"></div><div class="line">document.write(&apos;&lt;h1&gt;Hello Feed!&lt;/h1&gt;&apos;);</div><div class="line"></div><div class="line">// profile.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo3-Profile&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;profile.bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// profile.js</div><div class="line"></div><div class="line">document.write(&apos;&lt;h1&gt;Hello Profile!&lt;/h1&gt;&apos;);</div></pre></td></tr></table></figure>
+<p>示例见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo3" target="_blank" rel="external">demo3</a>，在demo3文件夹中启动<code>webpack-dev-server</code>，访问<code>localhost:8080/profile.html</code>和<code>localhost:8080/feed.html</code>查看效果。</p>
+<h2 id="Loaders"><a href="#Loaders" class="headerlink" title="Loaders"></a>Loaders</h2><p><code>Loaders</code>顾名思义就是加载器，用于加载各种格式的文件，例如<code>React</code>使用的<code>JSX</code>，<code>ES6</code>和<code>ES7</code>，图片、<code>CSS</code>、<code>JSON</code>文件等，可谓是<code>webpack</code>中最核心的功能之一。官方文档中列出了所有可用的<a href="http://webpack.github.io/docs/list-of-loaders.html" target="_blank" rel="external">loaders</a>。</p>
+<p><code>loaders</code>配置在<code>module.exports</code>中的<code>module</code>字段下（说起来有点绕，待会儿看代码就懂了），是一个数组，代表<code>loader</code>的集合，每一个<code>loader</code>有几个配置项：</p>
+<ul>
+<li><code>test</code>: 正则表达式，用于匹配文件的路径，一般都直接用来匹配文件后缀，在复杂的场景下，可以针对同一类型的不同文件做不同处理</li>
+<li><code>loader</code>: <code>loader</code>的名称，实际使用时可以省略<code>-loader</code>的后缀（例如<code>css-loader</code>，可以写成<code>css</code>）</li>
+<li><code>include</code>: 必须包含的文件路径</li>
+<li><code>exclude</code>: 不需要处理的文件路径</li>
+<li><code>query</code>: <code>loader</code>的额外设置选项</li>
+</ul>
+<p>下面我介绍几个常用的loader。</p>
+<h3 id="CSS-Loader"><a href="#CSS-Loader" class="headerlink" title="CSS Loader"></a>CSS Loader</h3><p>先安装<code>style-loader</code>和<code>css-loader</code>。其中，<code>style-loader</code>用来向 HTML 页面中插入<code>&lt;style&gt;</code>，<code>css-loader</code>用来读取 css 文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save-dev style-loader css-loader</div></pre></td></tr></table></figure>
+<p>然后在<code>webpack.config.js</code>中配置<code>loader</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;./main.js&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    module: &#123;</div><div class="line">        loaders: [</div><div class="line">            &#123;</div><div class="line">                test: /\.css$/,</div><div class="line">                loader: &apos;style!css&apos;</div><div class="line">            &#125;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo4&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;h1&gt;Hello World!&lt;/h1&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// a.css</div><div class="line"></div><div class="line">h1 &#123;color: red;&#125;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">require(&apos;./a.css&apos;);</div></pre></td></tr></table></figure>
+<p>示例见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo4" target="_blank" rel="external">demo4</a>，可以看到，多个<code>loader</code>之间用<code>!</code>连接。在本地用<code>webpack-dev-server</code>启动服务，访问<code>localhost:8080</code>可以看到<code>h1</code>中的字体颜色如<code>a.css</code>定义的那样显示红色</p>
+<img src="/2016/09/25/webpack入门指南/img2.png" alt="img2.png" title="">
+<p>这个 demo 中的 css 是对全局生效的，如果需要只对当前模块生效，就要用到我们下面介绍的<code>css module</code>。</p>
+<h3 id="CSS-Module"><a href="#CSS-Module" class="headerlink" title="CSS Module"></a>CSS Module</h3><p>近几年，模块化这个概念在前端被不断地被提及。模块化使得代码被分割成一个个更小的、独立的、可维护性更高的独立单元。相比于<code>JS</code>，<code>CSS</code>的模块化发展的相对慢一点。最近出现了一个叫做<code>css modules</code>的技术，在css模块中，所有的类名和动画名默认只对向前模块生效。<code>webpack</code>对<code>css module</code>提供了不错的支持，只需要在<code>css-loader</code>后面加上<code>?module</code>即可使用。如果要对全局生效，可以使用<code>:global()</code>，把选择器作为参数传入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;./main.js&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    module: &#123;</div><div class="line">        loaders: [</div><div class="line">            &#123;</div><div class="line">                test: /\.css$/,</div><div class="line">                loader: &apos;style!css?module&apos;</div><div class="line">            &#125;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo5&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;div class=&quot;foo&quot;&gt;Foo&lt;/div&gt;</div><div class="line">    &lt;div class=&quot;bar&quot;&gt;Bar&lt;/div&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// a.css</div><div class="line"></div><div class="line">.foo &#123;color: red;&#125;</div><div class="line">:global(.bar) &#123;</div><div class="line">    color: green;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">var style = require(&apos;./a.css&apos;);</div><div class="line"></div><div class="line">document.write(&apos;&lt;div class=&apos; + style.foo + &apos;&gt;Module - Foo&lt;/div&gt;&apos;);</div><div class="line">document.write(&apos;&lt;div class=&quot;bar&quot;&gt;Module - Bar&lt;/div&gt;&apos;);</div></pre></td></tr></table></figure>
+<p>需要注意的是，在<code>main.js</code>中使用时，必须用变量<code>style.foo</code>，直接写成<code>class=&quot;foo&quot;</code>是不会生效的，因为<code>a.css</code>中的<code>.foo</code>的类名被编译了，所以导出的<code>style.foo</code>将不等于<code>foo</code>。</p>
+<p>示例代码见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo5" target="_blank" rel="external">demo5</a>。在 demo5 的目录下执行<code>webpack-dev-server</code>，在浏览器中打开<code>localhost:8080</code>，可以看到对应的效果。</p>
+<img src="/2016/09/25/webpack入门指南/img3.png" alt="img3.png" title="">
+<h3 id="Url-Loader"><a href="#Url-Loader" class="headerlink" title="Url Loader"></a>Url Loader</h3><p>先安装<code>url-loader</code>和<code>file-loader</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save-dev url-loader file-loader</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意，<code>url-loader</code>对<code>file-loader</code>有依赖，但是安装<code>url-loader</code>时不会自动安装<code>file-loader</code>，这里我暂时没有花时间去了解原因，先都手动安装吧。如果不安装<code>file-loader</code>，超过<code>limit</code>大小的文件将无法加载。</p>
+</blockquote>
+<p><code>url-loader</code>是一个文件加载器，我们可以给他设定一个<code>limit</code>，用来限定文件大小，文件小于这个大小时会被转换成一个<code>Data Url</code>，反之转换成普通url表示资源路径。我们常用<code>url-loader</code>来加载图片。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;./main.js&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    module: &#123;</div><div class="line">        loaders: [</div><div class="line">            &#123;</div><div class="line">                test: /\.(png|jpg)$/,</div><div class="line">                loader: &apos;url-loader?limit=8192&apos;</div><div class="line">            &#125;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo6&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">var img1 = new Image();</div><div class="line">img1.src = require(&apos;./webpack.png&apos;);</div><div class="line">document.body.appendChild(img1);</div><div class="line"></div><div class="line">var img2 = new Image();</div><div class="line">img2.src = require(&apos;./wade.jpg&apos;);</div><div class="line">document.body.appendChild(img2);</div></pre></td></tr></table></figure>
+<p>示例代码见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo6" target="_blank" rel="external">demo6</a>。在demo6目录下运行<code>webpack-dev-server</code>，在浏览器中访问<code>localhost:8080</code>，审查元素可以看到，8k以下的图片使用了<code>Data Url</code>，8k以上的图片使用的是资源地址。</p>
+<img src="/2016/09/25/webpack入门指南/img4.png" alt="img4.png" title="">
+<h3 id="Babel-Loader"><a href="#Babel-Loader" class="headerlink" title="Babel Loader"></a>Babel Loader</h3><p>现如今，<code>ES6</code>、<code>React</code>可谓是红透半边天，说起<code>ES6</code>、<code>React</code>，就不得不提<code>Babel</code>了。<code>Babel</code>是一个 Javascript 编译工具，可以让你现在就能使用目前还未被浏览器完全支持的下一代JS（ES6/ES7）,或是基于 JS 进行扩展的 JSX 等。</p>
+<p>我们先安装需要的包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install --save-dev babel-core babel-loader babel-preset-es2015 babel-preset-react react react-dom</div></pre></td></tr></table></figure>
+<p>其中，<code>babel-core</code>是<code>babel</code>的核心功能，<code>babel-loader</code>是<code>webpack</code>使用的<code>babel</code>加载器，<code>babel-preset-es2015</code>和<code>babel-preset-react</code>是<code>babel</code>用来解析<code>ES6</code>和<code>JSX</code>的包，<code>react</code>和<code>react-dom</code>是开发<code>react</code>的依赖包。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;./main.jsx&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    module: &#123;</div><div class="line">        loaders: [</div><div class="line">            &#123;</div><div class="line">                test: /\.js[x]?$/,</div><div class="line">                exclude: /node_modules/,</div><div class="line">                loader: &apos;babel-loader&apos;,</div><div class="line">                query: &#123;</div><div class="line">                    presets: [&apos;es2015&apos;, &apos;react&apos;]</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo7&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// main.jsx</div><div class="line"></div><div class="line">import React from &apos;react&apos;;</div><div class="line">import &#123;render&#125; from &apos;react-dom&apos;;</div><div class="line"></div><div class="line">render(</div><div class="line">    &lt;h1&gt;Hello world!&lt;/h1&gt;,</div><div class="line">    document.querySelector(&apos;#root&apos;)</div><div class="line">);</div></pre></td></tr></table></figure>
+<p>可以看到，在这个配置中，我们把<code>babel-loader</code>的配置写在<code>query</code>字段中。其实也可以直接写在<code>loader</code>字段中，<code>loader: &#39;babel-loader?presets[]=es2015&amp;presets[]=react&#39;</code>，但是这样就不是太清晰了，建议配置比较长时拿出来放到<code>query</code>字段中去。</p>
+<p>示例代码见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo7" target="_blank" rel="external">demo7</a>，在demo7目录下执行<code>webpack-dev-server</code>，在浏览器中访问<code>localhost:8080</code>查看效果。</p>
+<h2 id="Plugins"><a href="#Plugins" class="headerlink" title="Plugins"></a>Plugins</h2><p><code>plugins</code>是<code>webpack</code>中另一个非常重要且又用的配置，它与<code>loaders</code>的区别在于，<code>loader</code>是用来加载文件的，会逐个文件处理，而<code>plugins</code>是作为<code>webpack</code>功能的补充，整个构建过程都在持续发挥作用。下面我来给大家介绍几个常用的插件。</p>
+<h3 id="UglifyJS-Plugin"><a href="#UglifyJS-Plugin" class="headerlink" title="UglifyJS Plugin"></a>UglifyJS Plugin</h3><p>这个插件估计很多人看名字就猜出来了，是用于压缩 JS 代码的。它是<code>webpack</code>的内置插件，不需要安装就可以使用。</p>
+<p>直接上代码吧:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">var webpack = require(&apos;webpack&apos;);</div><div class="line">var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;./main.js&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    plugins: [</div><div class="line">        new UglifyJsPlugin()</div><div class="line">    ]</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo8&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">var name = &apos;JoeRay61&apos;;</div><div class="line">var age = 24;</div><div class="line">document.write(&apos;My name is &apos; + name + &apos;, I\&apos;m &apos; + age + &apos; years old.&apos;);</div></pre></td></tr></table></figure>
+<p>示例代码见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo8" target="_blank" rel="external">demo8</a>。在demo8目录下执行<code>webpack-dev-server</code>，在浏览器中访问<code>localhost:8080</code>，打开开发这工具，可以看到bundle.js的代码被压缩成了一行，变量名也被替换了，说明插件生效了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">!function(r)&#123;function e(t)&#123;if(o[t])return o[t].exports;var n=o[t]=&#123;exports:&#123;&#125;,id:t,loaded:!1&#125;;return r[t].call(n.exports,n,n.exports,e),n.loaded=!0,n.exports&#125;var o=&#123;&#125;;return e.m=r,e.c=o,e.p=&quot;&quot;,e(0)&#125;([function(r,e)&#123;var o=&quot;JoeRay61&quot;,t=24;document.write(&quot;My name is &quot;+o+&quot;, I&apos;m &quot;+t+&quot; years old.&quot;)&#125;]);</div></pre></td></tr></table></figure>
+<h3 id="Feature-Flags"><a href="#Feature-Flags" class="headerlink" title="Feature Flags"></a>Feature Flags</h3><p>想象这样一种场景，我们希望在开发环境中在代码中输出一些调试信息，那么如何在<code>webpack</code>中实现呢。这时候就需要用上<code>Feature Flags</code>。它是借由<code>webpack</code>的自定义插件机制实现的全局环境变量，我们可以在代码中判这些全局变量的值来实现定制化的功能。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">var webpack = require(&apos;webpack&apos;);</div><div class="line">var flags = new webpack.DefinePlugin(&#123;</div><div class="line">    __PROD__: JSON.stringify(JSON.parse(process.env.PROD || &apos;false&apos;))</div><div class="line">&#125;);</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &apos;./main.js&apos;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    plugins: [flags]</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo9&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">document.write(&apos;&lt;h1&gt;Hello world!&lt;/h1&gt;&apos;);</div><div class="line">if (!__PROD__) &#123;</div><div class="line">    document.write(&apos;&lt;p&gt;it is dev version&lt;/p&gt;&apos;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>示例代码见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo9" target="_blank" rel="external">demo9</a>。进入demo9目录，分别执行<code>PROD=1 webpack-dev-server</code>和<code>webpack-dev-server</code>，在浏览器中访问<code>localhost:8080</code>，可以看到区别。</p>
+<img src="/2016/09/25/webpack入门指南/img5.png" alt="img5.png" title="">
+<img src="/2016/09/25/webpack入门指南/img6.png" alt="img6.png" title="">
+<h3 id="Hot-Module-Replacement"><a href="#Hot-Module-Replacement" class="headerlink" title="Hot Module Replacement"></a>Hot Module Replacement</h3><p><code>HMR</code>是<code>webpack</code>中一个激动人心的功能，中文直译叫<code>模块热替换</code>，是指配合<code>webpack-dev-server</code>的服务器，在你修改了项目的模块之后，不需要手动刷新页面，即可以看到更新后的效果，有效地提升了开发效率。</p>
+<p>配合<code>webpack-dev-server</code>，我们有2种方式可以启用该功能：</p>
+<ol>
+<li><p>在命令中中<code>webpack-dev-server</code>命令后面追加<code>--hot</code>和<code>--inline</code>参数</p>
+<ul>
+<li><code>--hot</code>: 添加HMR插件，将服务器切换到 hot 模式</li>
+<li><code>--inline</code>: 将<code>webpack-dev-server</code>的 runtime 加入到打包后的文件中</li>
+<li><code>--hot --inline</code>: 当这两个参数并存时，会额外添加一个<code>webpack/hot/dev-server</code>的<code>entry</code></li>
+</ul>
+</li>
+<li><p>配置<code>webpack.config.js</code></p>
+<ul>
+<li>添加<code>new webpack.HotModuleReplacementPlugin()</code>插件</li>
+<li>添加<code>webpack/hot/dev-server</code>和<code>webpack-dev-server/client?http://localhost:8080</code>这2个<code>entry</code></li>
+</ul>
+</li>
+</ol>
+<p>针对第2中方式我们来测试一下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">var webpack = require(&apos;webpack&apos;);</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: [</div><div class="line">        &apos;webpack/hot/dev-server&apos;,</div><div class="line">        &apos;webpack-dev-server/client?http://localhost:8080&apos;,</div><div class="line">        &apos;./main.js&apos;</div><div class="line">    ],</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    plugins: [</div><div class="line">        new webpack.HotModuleReplacementPlugin()</div><div class="line">    ]</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo10&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">document.write(&apos;&lt;h1&gt;Hello world!&lt;/h1&gt;&apos;);</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意，测试过程中我发现，如果原来是全局安装的<code>webpack-dev-server</code>，必须要在项目中局部安装<code>webpack-dev-server</code>，否则启动服务器时会报错<br>安装命令<code>$ npm install --save-dev webpack-dev-server</code></p>
+</blockquote>
+<p>示例代码见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo10" target="_blank" rel="external">demo10</a>。在demo10目录下，执行<code>webpack-dev-server</code>，在浏览器中查看<code>localhost:8080</code>，发现输出<code>Hello world!</code>，这时候不要关闭服务器，直接修改<code>main.js</code>的代码，保存后查看浏览器效果，发现虽然没有手动刷新页面，但是效果已经出来了。</p>
+<h3 id="Commons-Chunk-Plugin"><a href="#Commons-Chunk-Plugin" class="headerlink" title="Commons Chunk Plugin"></a>Commons Chunk Plugin</h3><p>当几个不同的脚本有公共的部分时，我们可以把公共部分抽出来放到一个单独的文件中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line">// webpack.config.js</div><div class="line"></div><div class="line">var webpack = require(&apos;webpack&apos;);</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    entry: &#123;</div><div class="line">        index: &apos;./index.js&apos;,</div><div class="line">        main: &apos;./main.js&apos;</div><div class="line">    &#125;,</div><div class="line">    output: &#123;</div><div class="line">        filename: &apos;[name].bundle.js&apos;</div><div class="line">    &#125;,</div><div class="line">    plugins: [</div><div class="line">        new webpack.optimize.CommonsChunkPlugin(&apos;common.js&apos;)</div><div class="line">    ]</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// index.html</div><div class="line"></div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=&quot;en&quot;&gt;</div><div class="line">&lt;head&gt;</div><div class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</div><div class="line">    &lt;title&gt;Demo11&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">    &lt;script src=&quot;common.js&quot;&gt;&lt;/script&gt;</div><div class="line">    &lt;script src=&quot;index.bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">    &lt;script src=&quot;main.bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">// index.js</div><div class="line"></div><div class="line">var data = require(&apos;./data&apos;);</div><div class="line">document.write(&apos;&lt;p&gt;foo is &apos; + data.foo + &apos;&lt;/p&gt;&apos;);</div><div class="line"></div><div class="line">// main.js</div><div class="line"></div><div class="line">var data = require(&apos;./data&apos;);</div><div class="line">document.write(&apos;&lt;p&gt;bar is &apos; + data.bar + &apos;&lt;/p&gt;&apos;);</div><div class="line"></div><div class="line">// data.js</div><div class="line"></div><div class="line">var data = &#123;</div><div class="line">    foo: 123,</div><div class="line">    bar: 456</div><div class="line">&#125;;</div><div class="line"></div><div class="line">module.exports = data;</div></pre></td></tr></table></figure>
+<p>具体示例见<a href="https://github.com/Joe3Ray/webpack-demo/tree/master/demo11" target="_blank" rel="external">demo11</a>。在demo11目录下执行<code>webpack-dev-server</code>，在浏览器中访问<code>localhost:8080</code>，打开开发者工具，发现<code>data.js</code>被抽出单独放到了<code>common.js</code>中。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文是我自己学习<code>webpack</code>的一个笔记，我把它记录下来，希望能给其他的<code>webpack</code>初学者提供一点帮助，谢谢观看，欢迎交流！</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2016/06/29/ES6学习笔记之模块/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/06/29/ES6学习笔记之模块/" itemprop="url">
+                  ES6学习笔记之模块
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-29T18:11:48+08:00">
+                2016-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在当今的<code>Javascript</code>程序中，模块的作用不言而喻，目前广泛应用的主要有<code>AMD</code>（浏览器端）和<code>CommonJS</code>（服务器端）。但是<code>Javascript</code>一直没有在语言层面支持模块，直到<code>ES6</code>的出现。相信在不久的将来，<code>ES6</code>的模块一定会全面取代<code>AMD</code>和<code>CommonJS</code>。</p>
+<h2 id="export"><a href="#export" class="headerlink" title="export"></a>export</h2><p><code>ES6</code>的模块提供了2个新的语法，分别是<code>export</code>和<code>import</code>。<code>export</code>就是模块用来对外暴露数据的接口，具体用法如下。</p>
+<pre><code>export let a = 1;
+export class A {};
+export let b = () =&gt; {};
+</code></pre><p>输出多个数据时不必分别<code>export</code>，可以用一个<code>export</code>统一输出</p>
+<pre><code>let a = 1;
+class A {};
+let b = () =&gt; {};
+export {a, A, b};
+</code></pre><h2 id="import"><a href="#import" class="headerlink" title="import"></a>import</h2><p>与<code>export</code>对应，<code>import</code>就是<code>ES6</code>的模块用来引入数据的命令。</p>
+<p>我们先来建立一个数据数据的文件<code>a.js</code>:</p>
+<pre><code>// a.js
+let a = 1;
+export {a};
+</code></pre><p>然后再创建一个<code>b.js</code>用来导入<code>a.js</code>暴露的数据</p>
+<pre><code>// b.js
+import {a} from &apos;./a&apos;;
+console.log(a);    // 1
+</code></pre><p>如果要导入的模块暴露了很多变量，而你又不想一个一个地去写要<code>import</code>的数据时，可以使用<code>*</code></p>
+<pre><code>// b.js
+import * as obj from &apos;./a&apos;;
+console.log(obj.a);    // 1
+</code></pre><p>需要注意的是，<code>import</code>使用的变量名必须跟<code>export</code>使用的变量名一致</p>
+<h2 id="rename"><a href="#rename" class="headerlink" title="rename"></a>rename</h2><p><code>import</code>和<code>export</code>的时候都是可以对变量进行重命名的</p>
+<pre><code>// a.js，用于export变量a，但是导出时将a改名为aa
+let a = 1;
+export {a as aa};
+
+
+// b.js用于import从a.js导出的数据aa，但是在导入时将aa改名为b
+import {aa as b} from &apos;./a&apos;;
+console.log(a);   // undefined
+console.log(aa);  // undefined
+console.log(b);   // 1
+</code></pre><h2 id="default"><a href="#default" class="headerlink" title="default"></a>default</h2><p><code>export</code>时可以指定要默认导出的数据</p>
+<pre><code>// a.js
+let a = 1;
+let aa = 2;
+export default a;
+export {aa};
+// 也可以写成
+export {a as default, aa};
+</code></pre><p>导入默认数据时需要这样写：</p>
+<pre><code>// b.js
+import x from &apos;./a&apos;;
+console.log(x);  // 1
+</code></pre><p>细心的同学可能发现了，这里<code>import</code>的时候使用的变量名是<code>x</code>，这就是<code>default</code>的特权了，导入时使用的变量名可以随便取，不需要跟导出时的变量名一致。</p>
+<p>另外，如果同时要导入<code>default</code>和其他数据时该怎么写呢？</p>
+<pre><code>// b.js
+import x, {aa} from &apos;./a&apos;;
+console.log(x);    // 1
+console.log(aa);   // 2
+</code></pre><h2 id="ES6模块加载实质"><a href="#ES6模块加载实质" class="headerlink" title="ES6模块加载实质"></a>ES6模块加载实质</h2><p><code>CommonJS</code>加载模块时，加载的是值的副本，而<code>ES6</code>的模块加载，加载的是值的引用。还是直接上代码吧</p>
+<pre><code>// lib.js
+export let x = 1;
+export let changeX = () =&gt; {
+    x++;
+};
+
+
+// a.js
+import {x, changeX} from &apos;./lib&apos;;
+changeX();
+console.log(x);
+
+
+// b.js
+import {x, changeX} from &apos;./lib&apos;;
+changeX();
+console.log(x);
+
+
+// index.js
+import &apos;./a&apos;;
+import &apos;./b&apos;;
+</code></pre><p>执行<code>index.js</code>输出的值是<code>2</code>和<code>3</code>，这就说明<code>a.js</code>和<code>b.js</code>执行的时候改变的都是<code>lib.js</code>里的<code>x</code>，而不是各自操作了一份副本</p>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ol>
+<li><code>ES6</code>的模块采用严格模式，无论你是否申明<code>use strict;</code></li>
+<li><code>import</code>具有提升效果，即使写在文件的后面，也会被提到头部首先执行</li>
+</ol>
+<p>本文为学习过程中整理，如有问题欢迎交流~</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2016/06/16/ES6学习笔记之Classes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/06/16/ES6学习笔记之Classes/" itemprop="url">
+                  ES6学习笔记之Classes
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-16T18:13:24+08:00">
+                2016-06-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><code>ES6</code>的<code>Classes</code>是在原型链继承的基础上，由语言本身提供的语法糖，并非是一种全新的继承模式。这使得Javascript有一种更加简洁清晰的方式来实现类的创建和继承。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p>话不多说，直接上代码。</p>
+<h3 id="定义Class"><a href="#定义Class" class="headerlink" title="定义Class"></a>定义Class</h3><pre><code>class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+</code></pre><h3 id="继承Class"><a href="#继承Class" class="headerlink" title="继承Class"></a>继承Class</h3><pre><code>class Student extends Person {
+    constructor(name, age, grade) {
+        super(name, age);
+        this.grade = grade;
+    }
+}
+</code></pre><h3 id="原型链方法"><a href="#原型链方法" class="headerlink" title="原型链方法"></a>原型链方法</h3><pre><code>class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    speak() {
+        console.log(&apos;something...&apos;);
+    }
+}
+</code></pre><p><code>speak</code>就是原型链方法，不需要再繁琐地使用<code>prototype</code>来定义，直接定义在<code>class</code>内部即可。</p>
+<h3 id="静态方法"><a href="#静态方法" class="headerlink" title="静态方法"></a>静态方法</h3><pre><code>class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    static getClassName() {
+        return &apos;Person&apos;;
+    }
+}
+console.log(Person.getClassName());    // Person
+</code></pre><p>静态方法直接用类名来调用就可以了，熟悉面向对象编程的同学应该都不陌生。</p>
+<h3 id="Species"><a href="#Species" class="headerlink" title="Species"></a>Species</h3><p>某些情况下，类里面有一个方法返回的是类的实例，但是你可能希望返回父类的示例，这时候可以使用<code>species pattern</code>来达到目的。</p>
+<p>举个栗子，你实现了一个类叫做<code>MyArray</code>，继承自<code>Array</code>，如果你不使用<code>species pattern</code>，那么调用<code>map</code>方法将会返回<code>MyArray</code>的实例，如果使用了<code>species pattern</code>则能够返回<code>Array</code>的实例。</p>
+<pre><code>class MyArray extends Array {
+    static get [Symbol.species]() {
+        return Array;
+    }
+}
+
+var a = new MyArray(1,2,3);
+var mapped = a.map(x =&gt; x * x);
+
+console.log(mapped instanceof MyArray); // false
+console.log(mapped instanceof Array);   // true
+</code></pre><h3 id="Mixin"><a href="#Mixin" class="headerlink" title="Mixin"></a>Mixin</h3><p>mixin是类的模板。在EcmaScript中，一个类不能继承多个类。这样有些需求就不是很方便。为了解决这个问题，可以使用mixin。</p>
+<pre><code>var Bar = Sub =&gt; class extends Sub {
+    bar() {}
+};
+
+var Baz = Sub =&gt; class extends Sub {
+    baz() {}
+};
+
+class Person {
+    speak() {}
+}
+
+class Student extends Bar(Baz(Person)) {}
+</code></pre><p>这样，<code>Student</code>就可以继承<code>Bar</code>、<code>Baz</code>和<code>Person</code>3个基类了。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><h3 id="提升"><a href="#提升" class="headerlink" title="提升"></a>提升</h3><p>以前使用<code>function</code>来定义类的时候，我们可以在定以前先使用<code>new</code>，由于JS语言的变量提升特性，这样写不会有任何问题，示例如下：</p>
+<pre><code>var joe = new Person(&apos;joe&apos;, 23);
+function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+</code></pre><p>如果使用<code>class</code>来定义类，则必须在定义后才能使用<code>new</code>来进行对象的实例化，如果先<code>new</code>则会报错</p>
+<pre><code>var joe = new Person(&apos;joe&apos;, 23);    // ReferenceError
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+</code></pre><h3 id="严格模式（strict-mode）"><a href="#严格模式（strict-mode）" class="headerlink" title="严格模式（strict mode）"></a>严格模式（strict mode）</h3><p>类声明和类表达式都是在严格模式下执行的。</p>
+<h3 id="类表达式"><a href="#类表达式" class="headerlink" title="类表达式"></a>类表达式</h3><p>跟<code>function</code>一样，<code>class</code>也可以使用表达式来定义。类表达式可以命名也可以匿名。当类表达式有命名时，该命名仅作为类内部使用。</p>
+<pre><code>var Person = class Man {
+    getName() {
+        return Man.name;
+    }
+};
+var p = new Person();
+console.log(p.getName());    // Man
+console.log(Man);    // ReferenceError: Man is not defined
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes" target="_blank" rel="external">Classes</a></li>
+<li><a href="http://exploringjs.com/es6/ch_classes.html" target="_blank" rel="external">http://exploringjs.com/es6/ch_classes.html</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2016/04/26/ES6学习笔记之箭头函数/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/04/26/ES6学习笔记之箭头函数/" itemprop="url">
+                  ES6学习笔记之箭头函数
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-04-26T18:14:24+08:00">
+                2016-04-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JS中的箭头"><a href="#JS中的箭头" class="headerlink" title="JS中的箭头"></a>JS中的箭头</h2><p>箭头在JS里并不算是个新鲜的玩意儿，一直以来，JS都支持<code>--&gt;</code>这样的箭头。</p>
+<p>很早的时候有些浏览器还不支持JS，当时的人们为了兼容这些浏览器，需要这样写JS:</p>
+<pre><code>&lt;script language=&quot;javascript&quot;&gt;
+&lt;!--
+    alert(&apos;Joe&apos;);
+// --&gt;
+&lt;/script&gt;
+</code></pre><p>这段代码在不支持JS的浏览器里会被解读成2个未知标签和一段html注释。在支持JS的浏览器里，JS引擎会把<code>&lt;!--</code>和<code>--&gt;</code>看成是单行注释的开始。需要说明的是，<code>--&gt;</code>仅仅是在一行的开头才能表示这一行是注释，其余情况<code>--&gt;</code>是一个操作符，表示goes to的含义。</p>
+<pre><code>function countdown(n) {
+    while (n --&gt; 0) {
+        alert(n);
+    }
+}
+</code></pre><p>这段代码确实能够正常运行哦。当你给<code>countdown</code>函数传入一个大于0的参数时，这个循环能够一直运行，直到n变为0为止。</p>
+<p>此箭头非彼箭头，以上讲述的<code>--&gt;</code>并不是我们今天要讲的主角，大家权当拓展下JS知识，下面让我们进入正题。</p>
+<h2 id="特性介绍"><a href="#特性介绍" class="headerlink" title="特性介绍"></a>特性介绍</h2><p>箭头函数是ES6新增的特性之一，它为JS这门语言提供了一种全新的书写函数的语法。</p>
+<pre><code>// ES5
+var double = nums.map(function (v) {
+    return 2 * n;
+});
+
+// ES6
+var double = nums.map(v =&gt; 2 * n);
+</code></pre><p>箭头函数简化了原先的函数语法，不需要再写<code>function</code>，如果函数体只有一行代码的话连<code>return</code>都不用写，这个特性对于热衷于简化流程和工作的程序员来说相当对胃口。</p>
+<p>使用箭头函数有几个注意点：</p>
+<h3 id="函数体"><a href="#函数体" class="headerlink" title="函数体"></a>函数体</h3><p>箭头函数支持两种模式的函数体写法，我们姑且叫他简洁函数体和块级函数体。</p>
+<pre><code>// 简洁函数体
+var fn = x =&gt; x * x;
+
+// 块级函数体
+var fn = (x, y) =&gt; {return x + y;};
+</code></pre><p>简介函数体默认会把表达式的结果返回，块级函数体需要手动<code>return</code>。如果想要返回一个对象又想使用简洁函数体的话，需要这么写：</p>
+<pre><code>var fn = () =&gt; ({});
+fn();   // {}
+</code></pre><p>如果写成<code>var fn = () =&gt; {};</code>，那么执行<code>fn()</code>只能返回<code>undefined</code>。</p>
+<h3 id="this"><a href="#this" class="headerlink" title="this"></a>this</h3><p>用function生成的函数会定义一个自己的<code>this</code>，而箭头函数没有自己的<code>this</code>，而是会和上一层的作用域共享<code>this</code>。</p>
+<pre><code>function Person() {
+    this.age = 0;
+    var self = this;
+    setTimeout(function () {
+        self.age++;
+        console.log(self.age);
+    }, 1000);
+}
+var p = new Person();
+</code></pre><p>这段代码里，<code>setTimeout</code>的参数<code>function</code>中需要操作外层的<code>age</code>属性，必须要把<code>this</code>赋值给<code>self</code>，然后通过<code>self</code>来获取到<code>age</code></p>
+<p>如果使用箭头函数则省事很多，代码如下：</p>
+<pre><code>function Person() {
+    this.age = 0;
+    setTimeout(() =&gt; {
+        this.age++;
+        console.log(this.age);
+    }, 1000);
+}
+var p = new Person();
+</code></pre><h3 id="apply-amp-call"><a href="#apply-amp-call" class="headerlink" title="apply &amp; call"></a>apply &amp; call</h3><p>由于箭头函数已经绑定了<code>this</code>的值，即使使用<code>apply</code>或者<code>call</code>也不能只能起到传参数的作用，并不能强行改变箭头函数里的<code>this</code>。</p>
+<pre><code>var adder = {
+    x: 1,
+    add1: function (y) {
+        var fn = v =&gt; v + this.x;
+        return fn(y);
+    },
+    add2: function (y) {
+        var fn = v =&gt; v + this.x;
+        var whatever = {
+            x: 2
+        };
+        return fn.call(whatever, y);
+    }
+};
+
+adder.add1(1);    // 2
+adder.add2(1);    // 仍然是2
+</code></pre><h3 id="arguments"><a href="#arguments" class="headerlink" title="arguments"></a>arguments</h3><p>普通函数里<code>arguments</code>代表了调用时传入的参数，但是箭头函数不然，在箭头函数中无法使用<code>arguments</code></p>
+<p>当然，<code>ES6</code>中也有办法可以让箭头函数像普通函数一样使用类似于<code>arguments</code>这样的类数组对象</p>
+<pre><code>var fn = (...rest) =&gt; rest[0];
+fn(2);    // 2
+</code></pre><p><code>...rest</code>也是<code>ES6</code>的一个新特性，之后会介绍。</p>
+<h3 id="不能被new"><a href="#不能被new" class="headerlink" title="不能被new"></a>不能被new</h3><p>箭头函数不能与<code>new</code>关键字一起使用，会报错</p>
+<pre><code>var Fn = () =&gt; {
+    this.a = 1;
+};
+var f = new Fn();    // Error
+</code></pre><h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>在我看来，箭头函数几乎可以完全取代<code>function</code>，除非是函数需要进行递归或者需要可变的<code>this</code>对象，其他场景我认为都可以使用箭头函数。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://hacks.mozilla.org/2015/06/es6-in-depth-arrow-functions/" target="_blank" rel="external">ES6 In Depth: Arrow functions</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions" target="_blank" rel="external">Arrow functions</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2015/04/08/初探WebRTC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/04/08/初探WebRTC/" itemprop="url">
+                  初探WebRTC
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-08T18:16:10+08:00">
+                2015-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>##简介</p>
+<blockquote>
+<p>WebRTC is a new front in the long war for an open and unencumbered web.    </p>
+</blockquote>
+<p>这句话是JavaScript之父<em>Brendan Eich</em>对于WebRTC的评价，大致意思是『WebRTC是争取开放和无阻碍Web的漫长战争中一条新战线』。</p>
+<p>那么WebRTC到底是一种什么样的技术呢？WebRTC是一个免费的开放项目，提供了几个简单的API让浏览器、手机平台还有其他设备通过一个通用的协议进行实时通信，帮助开发者开发出丰富而且高质量的跨平台实时通信应用。</p>
+<p>本文的目的就是通过简洁的介绍和引导让开发者了解WebRTC的工作流程并能够快速上手开发WebRTC应用。</p>
+<p>##API</p>
+<ul>
+<li><p><strong>MediaStream(getUserMedia)</strong>    </p>
+<p>  MediaStream表示一段多媒体流，获取多媒体流的一个简单方式就是通过        <strong>getUserMedia</strong>函数，该函数可以调用设备的摄像头和麦克风，并拿到这些硬件生成的多媒体流。这些多媒体流可以输出到<code>video</code>标签或者一个<strong>RTCPeerConnection</strong>。</p>
+<p>  <strong>getUserMedia</strong>接受3个参数：</p>
+<ol>
+<li>一个限制对象，用于指定接受的流</li>
+<li>获取stream成功后的回调函数，被调用时能获取到对应的流</li>
+<li><p>获取stream失败后的回调函数，被调用时能获取到一个错误对象</p>
+<p>具体用法如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">var getUserMedia = navigator.getUserMedia || </div><div class="line">                      navigator.webkitGetUserMedia ||</div><div class="line">                      navigator.mozGetUserMedia;</div><div class="line">   var constraints = &#123;video: true&#125;;</div><div class="line">   getUserMedia(constraints, function (stream) &#123;</div><div class="line">       var video = document.querySelector(&quot;video&quot;);</div><div class="line">       //URL.createObjectURL方法把stream转换成blob，作为video的src属性进行播放</div><div class="line">       video.src = window.URL.createObjectURL(stream);</div><div class="line">       video.play();</div><div class="line">   &#125;, function (error) &#123;</div><div class="line">       console.log(error);</div><div class="line">   &#125;);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><strong>RTCPeerConnection</strong></li>
+</ul>
+<p>RTCPeerConnection帮我们做了很多事情，我们只需要把RTCPeerConnection理解成一种p2p传输音视频数据的通道，但是我们仍然还需要服务器来为我们传递消息，因为在建立p2p之前需要先互相交换session、网络配置、媒体适配等信息。另外，WebRTC还需要服务器帮助完成NAT穿越，以及在p2p建立失败的时候作为中转服务器。具体用法将在流程讲解中说明。</p>
+<ul>
+<li><p><strong>RTCDataChannel</strong></p>
+<p>  WebRTC除了支持视频和音频流之外，还支持其他类型的数据。RTCDataChannel用于点到点的任意数据交换，具有低延迟和高吞吐量的特点。RTCDataChannel必须建立在RTCPeerConnnection之上，没办法单独工作。</p>
+<p>  这个API潜在的应用场景很多，例如：</p>
+<ul>
+<li>游戏</li>
+<li>远程桌面应用</li>
+<li>实时文字聊天</li>
+<li><p>文件传输</p>
+<p>创建一个RTCDataChannel的方式如下：    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">   var RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;</div><div class="line">var peerConn = new RTCPeerConnection();</div><div class="line">   var dc = peerConn.createDataChannel(&quot;label&quot;);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p>##流程讲解</p>
+<p>看完上面的内容，大家应该还是处于云里雾里的状态，不知道WebRTC应用要如何开发，3个API如何配合使用。没关系，这里才是重点，看完这一段，相信你的所有疑惑就都解开了。</p>
+<p>要用WebRTC建立一个p2p通道需要经历2个步骤：</p>
+<ol>
+<li><p>获得本机SDP描述符并交换</p>
+<ul>
+<li>A、B均实例化一个RTCPeerConnection(以下简称rpcA和rpcB),调用rpcA的<code>createOffer()</code>方法建立一个offer信令，并且拿到A的SDP</li>
+<li>通过rpcA的<code>setLocalDescription()</code>方法设置A机器的本地描述</li>
+<li>A通过服务器将offer信令发给B</li>
+<li>B接收到A的offer信令，通过rpcB的<code>setRemoteDescription()</code>方法设置远程机器（即A）的描述</li>
+<li>B调用rpcB的<code>createAnswer()</code>方法建立一个answer信令，并且拿到B的SDP</li>
+<li>通过rpcB的<code>setLocalDescription()</code>方法设置B机器的本地描述</li>
+<li>B通过服务器将answer信令发送给A</li>
+<li><p>A接收到B的answer信令，通过rpcA的<code>setRemoteDescription()</code>方法设置远程机器B的描述</p>
+<p>这个过程完成后，A和B就都拿到各自的SDP描述符了</p>
+</li>
+</ul>
+</li>
+<li><p>通过ICE框架连接两段主机的网络地址</p>
+<p> ICE框架具体内容我不清楚，咱们姑且先了解在WebRTC中如何使用，对ICE感兴趣的同学可以自行谷歌。</p>
+<p> 在实例化RTCPeerConnection对象的时候可以传入ICE服务器的地址，我们可以使用谷歌提供的『stun:stun.l.google.com:19302』或者Mozilla提供的『stun:stun.services.mozilla.com』，代码如下：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">var configuration = &#123;iceServers: [&#123;url: &quot;stun:stun.l.google.com:19302&quot;&#125;]&#125;;</div><div class="line">var rpc = new RTCPeerConnection(configuration);</div></pre></td></tr></table></figure>
+<p> 在rpc上绑定onicecandidate事件的回调函数，当网络候选可用时这个函数会被调用，在这个回调函数中，本机可以拿到ice candidate信令，然后通过服务器发给远程机器，远程机器通过自己的rpc实例的<code>addIceCandidate()</code>方法添加，同样地，远程机器也应该将自己的ice candidate信令通过服务器发送给本机。</p>
+<p> 当双方的ice candidate交换完成时，连接就建立成功了，可以在rpc示例上调用<code>addStream()</code>来添加流，另一边通过绑定onaddstream事件就可以获取到传过去的流。</p>
+<p> 服务器通信部分，没有规定必须要用某种协议，所以只要能在两边传输消息的技术可以使用，例如<em>WebSocket</em>、<em>XHR</em>等，大家自行选择即可。<br>##示例</p>
+</li>
+</ol>
+<p>本来想自己写个例子给大家参考的，后来发现网上有个非常棒的实例教程，我就直接上地址了<a href="https://bitbucket.org/webrtc/codelab" target="_blank" rel="external">https://bitbucket.org/webrtc/codelab</a></p>
+<p>##小结</p>
+<p>写这篇文章的目的是为了让学习WebRTC的同学能够快速上手，对WebRTC技术有个整体的概念，所以文章写的比较简短，专注于讲解WebRTC的运作流程，对一些相关技术，比如ICE、SDP等没有深入探讨（当然我也不太懂）。如果你想快速上手制作WebRTC应用，看完这篇文章再对着<a href="https://bitbucket.org/webrtc/codelab" target="_blank" rel="external">codelab</a>提供的例子一步一步跟着做应该就没问题了。Good luck!</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.html5rocks.com/en/tutorials/webrtc/basics/" target="_blank" rel="external">http://www.html5rocks.com/en/tutorials/webrtc/basics/</a></li>
+<li><a href="http://www.webrtc.org/" target="_blank" rel="external">http://www.webrtc.org/</a></li>
+<li><a href="http://www.w3.org/TR/webrtc/" target="_blank" rel="external">http://www.w3.org/TR/webrtc/</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/WebRTC" target="_blank" rel="external">https://developer.mozilla.org/en-US/docs/Glossary/WebRTC</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/09/21/Javascript实现图片的预加载功能/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/09/21/Javascript实现图片的预加载功能/" itemprop="url">
+                  Javascript实现图片的预加载功能
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-09-21T18:18:24+08:00">
+                2014-09-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近要用<code>javascript</code>做一个动画功能，为了确保动画在播放的时候能够顺利和平滑，我需要对所用到的图片素材进行<strong><em>预加载</em></strong>，下面跟大家分享一下我实现这个功能的过程</p>
+<p>##单图片预加载##<br>目前最常见的一种实现方式如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">function preloadImg(url) &#123;</div><div class="line">	var img = new Image();</div><div class="line">    img.src = url;</div><div class="line">    if(img.complete) &#123;</div><div class="line">    	//接下来可以使用图片了</div><div class="line">        //do something here</div><div class="line">    &#125;</div><div class="line">    else &#123;</div><div class="line">    	img.onload = function() &#123;</div><div class="line">        	//接下来可以使用图片了</div><div class="line">        	//do something here</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>首先实例化一个<code>Image</code>对象赋值给<code>img</code>，然后设置<code>img.src</code>为参数<code>url</code>指定的图片地址,接着判断<code>img</code>的<code>complete</code>属性，如果本地有这张图片的缓存，则该值为<code>true</code>，此时我们可以直接操作这张图片，如果本地没有缓存，则该值为<code>false</code>，此时我们需要监听<code>img</code>的<code>onload</code>事件，把对<code>img</code>的操作放在<code>onload</code>的回调函数里面，经过测试，这种方案基本能够兼容目前所有浏览器</p>
+<p>##多图片预加载##<br>很多场景下，单图片预加载并不能满足我们的需求，因为像动画这种功能通常都会有很多的图片素材，接下来我们就在原来单图片预加载的基础上来改进我们的函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">function preloadImg(list) &#123;</div><div class="line">	var imgs = arguments[1] || [],	//用于存储预加载好的图片资源</div><div class="line">    	fn = arguments.cal	lee;</div><div class="line">    if(list.length == 0) &#123;</div><div class="line">    	return imgs;</div><div class="line">    &#125;</div><div class="line">	var img = new Image();</div><div class="line">    img.src = list[0];</div><div class="line">    if(img.complete) &#123;</div><div class="line">    	imgs.push(img);</div><div class="line">        list.shift();</div><div class="line">        fn(list, imgs);</div><div class="line">    &#125;</div><div class="line">    else &#123;</div><div class="line">    	img.onload = function() &#123;</div><div class="line">        	imgs.push(img);</div><div class="line">            list.shift();</div><div class="line">            fn(list, imgs);</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">var list = [......],	//此处省略一万个字符</div><div class="line">	imgs = preloadImg();</div></pre></td></tr></table></figure></p>
+<p>因为帧动画可能需要保证每一帧动画所用的图片的顺序，所以我在这段代码中使用递归的方式，在上一张加载完成之后再去加载下一张图片，每加载一张图片，就把这张图片资源存储到<code>imgs</code>数组中，并且把这张图片的地址从地址数组<code>list</code>中去掉，当<code>list</code>中已经没有地址的时候跳出递归，并返回<code>imgs</code>数组<br>设想很美好，现实很残酷，这段代码有2个不能忍受的问题</p>
+<ol>
+<li>首先，我很有可能拿不到最后返回的<code>imgs</code>数组，因为只要有图片在本地没有缓存，<code>imgs</code>的存储操作都会放到<code>onload</code>的回调事件中，而<strong>事件监听</strong>也属于<code>javascript</code>中异步操作的一种，在绑定完<code>onload</code>事件的回调函数后，<code>preloadImg</code>函数就执行结束了，没有任何返回值，外部<code>imgs</code>变量接收到的值为<code>undefined</code>，只有在所有图片都有本地缓存的情况下，外部<code>imgs</code>变量才能顺利拿到存储了全部预加载图片资源的数组</li>
+<li>在加载完一张图片之后才去加载下一张，整个预加载图片的过程所需要的时间相对会比较长，用户体验会降低，而且本来异步操作具体速度快的特性，这样的实现方式等于完全弃置了<code>onload</code>异步的这个特性<br>##多图片预加载（改进版）##<br>这次我们直接把一个空数组作为参数传进函数，图片全部存储到这个数组里面，下面是改进后的函数代码（假设我们可以使用<code>jQuery</code>）<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">function preloadImg(list,imgs) &#123;</div><div class="line">	var def = $.Deferred(),</div><div class="line">        len = list.length;</div><div class="line">    $(list).each(function(i,e) &#123;</div><div class="line">        var img = new Image();</div><div class="line">        img.src = e;</div><div class="line">        if(img.complete) &#123;</div><div class="line">            imgs[i] = img;</div><div class="line">            len--;</div><div class="line">            if(len == 0) &#123;</div><div class="line">                def.resolve();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        else &#123;</div><div class="line">            img.onload = (function(j) &#123;</div><div class="line">                return function() &#123;</div><div class="line">                    imgs[j] = img</div><div class="line">                    len--;</div><div class="line">                    if(len == 0) &#123;</div><div class="line">                        def.resolve();</div><div class="line">                    &#125;</div><div class="line">                &#125;;</div><div class="line">            &#125;)(i);</div><div class="line">            img.onerror = function() &#123;</div><div class="line">                len--;</div><div class="line">                console.log(&apos;fail to load image&apos;);</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    return def.promise();</div><div class="line">&#125;</div><div class="line">var list = [......],	//此处省略一万个字符</div><div class="line">	imgs = [];</div><div class="line">$.when(preloadImg(list, imgs)).done(</div><div class="line">	function() &#123;</div><div class="line">    	//预加载结束</div><div class="line">        //do something here</div><div class="line">    &#125;</div><div class="line">);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>在分别给每一个<code>img</code>绑定<code>onload</code>的回调函数时采用了闭包的方式，目的是为了保存住当前的递增变量<code>i</code>，要是不这么做，结果将会是<code>list</code>地址中没有本地缓存的图片都存储到<code>imgs</code>的最后一个元素上<br>这次每载入一张图片，我们并没有把这张图片的地址从<code>list</code>数组中去掉，这样后续需要使用<code>list</code>数组的数据时就能够顺利获取到</p>
+<p>thx for reading, hope u enjoy</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/09/20/浅谈Javascript中Promise对象的实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/09/20/浅谈Javascript中Promise对象的实现/" itemprop="url">
+                  浅谈Javascript中Promise对象的实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-09-20T18:23:01+08:00">
+                2014-09-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>很多做前端的朋友应该都听说过<code>Promise</code>（或者<code>Deferred</code>）对象，今天我就讲一下我对<code>Promise</code>的认识</p>
+<p>##What？##<br><code>Promise</code>是<code>CommonJS</code>的规范之一，拥有<code>resolve</code>、<code>reject</code>、<code>done</code>、<code>fail</code>、<code>then</code>等方法，能够帮助我们控制代码的流程，避免函数的多层嵌套。如今异步在web开发中越来越重要，对于开发人员来说，这种非线性执行的编程会让开发者觉得难以掌控，而<code>Promise</code>可以让我们更好地掌控代码的执行流程,<code>jQuery</code>等流行的js库都已经实现了这个对象，年底即将发布的<code>ES6</code>也将原生实现<code>Promise</code></p>
+<p>##Why##<br>想象这样一个场景，两个异步请求，第二个需要用到第一个请求成功的数据，那么我们代码可以这样写<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ajax(&#123;</div><div class="line">   	url: url1,</div><div class="line">       success: function(data) &#123;</div><div class="line">       	ajax(&#123;</div><div class="line">           	url: url2,</div><div class="line">               data: data,</div><div class="line">               success: function() &#123;</div><div class="line">               &#125;</div><div class="line">           &#125;);</div><div class="line">       &#125;</div><div class="line">   &#125;);</div></pre></td></tr></table></figure></p>
+<p>如果继续下去在回调函数中进行下一步操作，嵌套的层数会越来越多。我们可以进行适当的改进，把回调函数写到外面<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">function A() &#123;</div><div class="line">   	ajax(&#123;</div><div class="line">       	url: url1,</div><div class="line">           success: function(data) &#123;</div><div class="line">           	B(data);</div><div class="line">           &#125;</div><div class="line">       &#125;);</div><div class="line">   &#125;</div><div class="line">   function B(data) &#123;</div><div class="line">   	ajax(&#123;</div><div class="line">       	url: url2,</div><div class="line">           success: function(data) &#123;</div><div class="line">           	......</div><div class="line">           &#125;</div><div class="line">       &#125;);</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<p>即使是改写成这样，代码还是不够直观，但是如果有了Promise对象，代码就可以写得非常清晰，一目了然，请看</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">new Promise(A).done(B);</div></pre></td></tr></table></figure>
+<p>这样函数B就不用写在A的回调中了</p>
+<p>##How##<br>目前的<code>ES</code>标准中还未支持<code>Promise</code>对象，那么我们就自己动手，丰衣足食吧。思路大致是这样的，用2个数组(<code>doneList</code>和<code>failList</code>)分别存储成功时的回调函数队列和失败时的回调队列</p>
+<ul>
+<li><code>state</code>: 当前执行状态，有<code>pending</code>、<code>resolved</code>、<code>rejected</code>3种取值</li>
+<li><code>done</code>: 向<code>doneList</code>中添加一个成功回调函数</li>
+<li><code>fail</code>: 向<code>failList</code>中添加一个失败回调函数</li>
+<li><code>then</code>: 分别向<code>doneList</code>和<code>failList</code>中添加回调函数</li>
+<li><code>always</code>: 添加一个无论成功还是失败都会调用的回调函数</li>
+<li><code>resolve</code>: 将状态更改为<code>resolved</code>,并触发绑定的所有成功的回调函数</li>
+<li><code>reject</code>: 将状态更改为<code>rejected</code>,并触发绑定的所有失败的回调函数</li>
+<li><code>when</code>: 参数是多个异步或者延迟函数，返回值是一个Promise兑现，当所有函数都执行成功的时候执行该对象的<code>resolve</code>方法，反之执行该对象的<code>reject</code>方法<br>下面是我的具体实现过程：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div></pre></td><td class="code"><pre><div class="line">var Promise = function() &#123;</div><div class="line">    this.doneList = [];</div><div class="line">    this.failList = [];</div><div class="line">    this.state = &apos;pending&apos;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">Promise.prototype = &#123;</div><div class="line">    constructor: &apos;Promise&apos;,</div><div class="line">    resolve: function() &#123;</div><div class="line">        this.state = &apos;resolved&apos;;</div><div class="line">        var list = this.doneList;</div><div class="line">        for(var i = 0, len = list.length; i &lt; len; i++) &#123;</div><div class="line">            list[0].call(this);</div><div class="line">            list.shift();</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    reject: function() &#123;</div><div class="line">        this.state = &apos;rejected&apos;;</div><div class="line">        var list = this.failList;</div><div class="line">        for(var i = 0, len = list.length; i &lt; len; i++)&#123;</div><div class="line">            list[0].call(this);</div><div class="line">            list.shift();</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    done: function(func) &#123;</div><div class="line">        if(typeof func === &apos;function&apos;) &#123;</div><div class="line">            this.doneList.push(func);</div><div class="line">        &#125;</div><div class="line">        return this;</div><div class="line">    &#125;,</div><div class="line">    fail: function(func) &#123;</div><div class="line">        if(typeof func === &apos;function&apos;) &#123;</div><div class="line">            this.failList.push(func);</div><div class="line">        &#125;</div><div class="line">        return this;</div><div class="line">    &#125;,</div><div class="line">    then: function(doneFn, failFn) &#123;</div><div class="line">        this.done(doneFn).fail(failFn);</div><div class="line">        return this;</div><div class="line">    &#125;,</div><div class="line">    always: function(fn) &#123;</div><div class="line">        this.done(fn).fail(fn);</div><div class="line">        return this;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">function when() &#123;</div><div class="line">    var p = new Promise();</div><div class="line">    var success = true;</div><div class="line">    var len = arguments.length;</div><div class="line">    for(var i = 0; i &lt; len; i++) &#123;</div><div class="line">        if(!(arguments[i] instanceof Promise)) &#123;</div><div class="line">            return false;</div><div class="line">        &#125;</div><div class="line">        else &#123;</div><div class="line">            arguments[i].always(function() &#123;</div><div class="line">                if(this.state != &apos;resolved&apos;)&#123;</div><div class="line">                    success = false;</div><div class="line">                &#125;</div><div class="line">                len--;</div><div class="line">                if(len == 0) &#123;</div><div class="line">                    success ? p.resolve() : p.reject();</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return p;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>##Improve##<br>目前只是实现了<code>Promise</code>的基础功能，但仍然还有无法处理的情况，例如要实现3个或3个以上的异步请求的串行，目前我的<code>Promise</code>没有办法支持<code>new Promise(A).then(B).then(C)</code>这样的形式，<code>jQuery</code>在1.7的版本中为<code>Deferred</code>(<code>Promise</code>)对象实现了<code>pipe</code>函数，可以通过这个函数实现上述功能，代码为<code>$.Deferred(A).pipe(B).then(C)</code>，我尝试去读了<code>jQuery</code>这部分的代码，但是没能读懂，希望有大神能够给一些实现思路</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -498,7 +2401,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -520,7 +2423,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

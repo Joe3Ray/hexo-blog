@@ -1,0 +1,906 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="vue.js," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="JoeRay61" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="DOM是文档对象模型(Document Object Model)的简写，在浏览器中我们可以通过js来操作DOM，但是这样的操作性能很差，于是Virtual Dom应运而生。我的理解，Virtual Dom就是在js中模拟DOM对象树来优化DOM操作的一种技术或思路。
+本文将对于Vue框架2.1.8版本中使用的Virtual Dom进行分析。
+VNode对象一个VNode的实例对象包含了以下属性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue原理解析之Virtual Dom">
+<meta property="og:url" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/index.html">
+<meta property="og:site_name" content="JoeRay61">
+<meta property="og:description" content="DOM是文档对象模型(Document Object Model)的简写，在浏览器中我们可以通过js来操作DOM，但是这样的操作性能很差，于是Virtual Dom应运而生。我的理解，Virtual Dom就是在js中模拟DOM对象树来优化DOM操作的一种技术或思路。
+本文将对于Vue框架2.1.8版本中使用的Virtual Dom进行分析。
+VNode对象一个VNode的实例对象包含了以下属性">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img1.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img2.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img3.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img4.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img5.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img6.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img7.png">
+<meta property="og:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img8.png">
+<meta property="og:updated_time" content="2017-04-04T10:04:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue原理解析之Virtual Dom">
+<meta name="twitter:description" content="DOM是文档对象模型(Document Object Model)的简写，在浏览器中我们可以通过js来操作DOM，但是这样的操作性能很差，于是Virtual Dom应运而生。我的理解，Virtual Dom就是在js中模拟DOM对象树来优化DOM操作的一种技术或思路。
+本文将对于Vue框架2.1.8版本中使用的Virtual Dom进行分析。
+VNode对象一个VNode的实例对象包含了以下属性">
+<meta name="twitter:image" content="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/img1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/"/>
+
+
+
+
+
+  <title> Vue原理解析之Virtual Dom | JoeRay61 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JoeRay61</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">make things make sense</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2017/02/08/Vue原理解析之Virtual-Dom/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Vue原理解析之Virtual Dom
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-08T17:54:55+08:00">
+                2017-02-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>DOM</code>是文档对象模型(<code>Document Object Model</code>)的简写，在浏览器中我们可以通过js来操作<code>DOM</code>，但是这样的操作性能很差，于是<code>Virtual Dom</code>应运而生。我的理解，<code>Virtual Dom</code>就是在js中模拟<code>DOM</code>对象树来优化<code>DOM</code>操作的一种技术或思路。</p>
+<p>本文将对于Vue框架2.1.8版本中使用的<code>Virtual Dom</code>进行分析。</p>
+<h2 id="VNode对象"><a href="#VNode对象" class="headerlink" title="VNode对象"></a>VNode对象</h2><p>一个VNode的实例对象包含了以下属性</p>
+<ul>
+<li><code>tag</code>: 当前节点的标签名</li>
+<li><code>data</code>: 当前节点的数据对象，具体包含哪些字段可以参考vue源码<code>types/vnode.d.ts</code>中对<code>VNodeData</code>的定义<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img1.png" alt="img1.png" title=""></li>
+<li><code>children</code>: 数组类型，包含了当前节点的子节点</li>
+<li><code>text</code>: 当前节点的文本，一般文本节点或注释节点会有该属性</li>
+<li><code>elm</code>: 当前虚拟节点对应的真实的dom节点</li>
+<li><code>ns</code>: 节点的namespace</li>
+<li><code>context</code>: 编译作用域</li>
+<li><code>functionalContext</code>: 函数化组件的作用域</li>
+<li><code>key</code>: 节点的key属性，用于作为节点的标识，有利于patch的优化</li>
+<li><code>componentOptions</code>: 创建组件实例时会用到的选项信息</li>
+<li><code>child</code>: 当前节点对应的组件实例</li>
+<li><code>parent</code>: 组件的占位节点</li>
+<li><code>raw</code>: raw html</li>
+<li><code>isStatic</code>: 静态节点的标识</li>
+<li><code>isRootInsert</code>: 是否作为根节点插入，被<code>&lt;transition&gt;</code>包裹的节点，该属性的值为<code>false</code></li>
+<li><code>isComment</code>: 当前节点是否是注释节点</li>
+<li><code>isCloned</code>: 当前节点是否为克隆节点</li>
+<li><code>isOnce</code>: 当前节点是否有<code>v-once</code>指令</li>
+</ul>
+<h2 id="VNode分类"><a href="#VNode分类" class="headerlink" title="VNode分类"></a>VNode分类</h2><img src="/2017/02/08/Vue原理解析之Virtual-Dom/img2.png" alt="img2.png" title="">
+<p><code>VNode</code>可以理解为vue框架的虚拟dom的基类，通过<code>new</code>实例化的<code>VNode</code>大致可以分为几类</p>
+<ul>
+<li><code>EmptyVNode</code>: 没有内容的注释节点</li>
+<li><code>TextVNode</code>: 文本节点</li>
+<li><code>ElementVNode</code>: 普通元素节点</li>
+<li><code>ComponentVNode</code>: 组件节点</li>
+<li><code>CloneVNode</code>: 克隆节点，可以是以上任意类型的节点，唯一的区别在于<code>isCloned</code>属性为<code>true</code></li>
+<li><code>...</code></li>
+</ul>
+<h2 id="createElement解析"><a href="#createElement解析" class="headerlink" title="createElement解析"></a>createElement解析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line">const SIMPLE_NORMALIZE = 1</div><div class="line">const ALWAYS_NORMALIZE = 2</div><div class="line"></div><div class="line">function createElement (context, tag, data, children, normalizationType, alwaysNormalize) &#123;</div><div class="line">  // 兼容不传data的情况</div><div class="line">  if (Array.isArray(data) || isPrimitive(data)) &#123;</div><div class="line">    normalizationType = children</div><div class="line">    children = data</div><div class="line">    data = undefined</div><div class="line">  &#125;</div><div class="line">  // 如果alwaysNormalize是true</div><div class="line">  // 那么normalizationType应该设置为常量ALWAYS_NORMALIZE的值</div><div class="line">  if (alwaysNormalize) normalizationType = ALWAYS_NORMALIZE</div><div class="line">  // 调用_createElement创建虚拟节点</div><div class="line">  return _createElement(context, tag, data, children, normalizationType)</div><div class="line">&#125;</div><div class="line"></div><div class="line">function _createElement (context, tag, data, children, normalizationType) &#123;</div><div class="line">  /**</div><div class="line">   * 如果存在data.__ob__，说明data是被Observer观察的数据</div><div class="line">   * 不能用作虚拟节点的data</div><div class="line">   * 需要抛出警告，并返回一个空节点</div><div class="line">   * </div><div class="line">   * 被监控的data不能被用作vnode渲染的数据的原因是：</div><div class="line">   * data在vnode渲染过程中可能会被改变，这样会触发监控，导致不符合预期的操作</div><div class="line">   */</div><div class="line">  if (data &amp;&amp; data.__ob__) &#123;</div><div class="line">    process.env.NODE_ENV !== &apos;production&apos; &amp;&amp; warn(</div><div class="line">      `Avoid using observed data object as vnode data: $&#123;JSON.stringify(data)&#125;\n` +</div><div class="line">      &apos;Always create fresh vnode data objects in each render!&apos;,</div><div class="line">      context</div><div class="line">    )</div><div class="line">    return createEmptyVNode()</div><div class="line">  &#125;</div><div class="line">  // 当组件的is属性被设置为一个falsy的值</div><div class="line">  // Vue将不会知道要把这个组件渲染成什么</div><div class="line">  // 所以渲染一个空节点</div><div class="line">  if (!tag) &#123;</div><div class="line">    return createEmptyVNode()</div><div class="line">  &#125;</div><div class="line">  // 作用域插槽</div><div class="line">  if (Array.isArray(children) &amp;&amp;</div><div class="line">      typeof children[0] === &apos;function&apos;) &#123;</div><div class="line">    data = data || &#123;&#125;</div><div class="line">    data.scopedSlots = &#123; default: children[0] &#125;</div><div class="line">    children.length = 0</div><div class="line">  &#125;</div><div class="line">  // 根据normalizationType的值，选择不同的处理方法</div><div class="line">  if (normalizationType === ALWAYS_NORMALIZE) &#123;</div><div class="line">    children = normalizeChildren(children)</div><div class="line">  &#125; else if (normalizationType === SIMPLE_NORMALIZE) &#123;</div><div class="line">    children = simpleNormalizeChildren(children)</div><div class="line">  &#125;</div><div class="line">  let vnode, ns</div><div class="line">  // 如果标签名是字符串类型</div><div class="line">  if (typeof tag === &apos;string&apos;) &#123;</div><div class="line">    let Ctor</div><div class="line">    // 获取标签名的命名空间</div><div class="line">    ns = config.getTagNamespace(tag)</div><div class="line">    // 判断是否为保留标签</div><div class="line">    if (config.isReservedTag(tag)) &#123;</div><div class="line">      // 如果是保留标签,就创建一个这样的vnode</div><div class="line">      vnode = new VNode(</div><div class="line">        config.parsePlatformTagName(tag), data, children,</div><div class="line">        undefined, undefined, context</div><div class="line">      )</div><div class="line">      // 如果不是保留标签，那么我们将尝试从vm的components上查找是否有这个标签的定义</div><div class="line">    &#125; else if ((Ctor = resolveAsset(context.$options, &apos;components&apos;, tag))) &#123;</div><div class="line">      // 如果找到了这个标签的定义，就以此创建虚拟组件节点</div><div class="line">      vnode = createComponent(Ctor, data, context, children, tag)</div><div class="line">    &#125; else &#123;</div><div class="line">      // 兜底方案，正常创建一个vnode</div><div class="line">      vnode = new VNode(</div><div class="line">        tag, data, children,</div><div class="line">        undefined, undefined, context</div><div class="line">      )</div><div class="line">    &#125;</div><div class="line">    // 当tag不是字符串的时候，我们认为tag是组件的构造类</div><div class="line">    // 所以直接创建</div><div class="line">  &#125; else &#123;</div><div class="line">    vnode = createComponent(tag, data, context, children)</div><div class="line">  &#125;</div><div class="line">  // 如果有vnode</div><div class="line">  if (vnode) &#123;</div><div class="line">    // 如果有namespace，就应用下namespace，然后返回vnode</div><div class="line">    if (ns) applyNS(vnode, ns)</div><div class="line">    return vnode</div><div class="line">  // 否则，返回一个空节点</div><div class="line">  &#125; else &#123;</div><div class="line">    return createEmptyVNode()</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>简单的梳理了一个流程图，可以参考下</p>
+<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img3.png" alt="img3.png" title="">
+<h2 id="patch原理"><a href="#patch原理" class="headerlink" title="patch原理"></a>patch原理</h2><p><code>patch</code>函数的定义在<code>src/core/vdom/patch.js</code>中，我们先来看下这个函数的逻辑</p>
+<p><code>patch</code>函数接收6个参数：</p>
+<ul>
+<li><code>oldVnode</code>: 旧的虚拟节点或旧的真实dom节点</li>
+<li><code>vnode</code>: 新的虚拟节点</li>
+<li><code>hydrating</code>: 是否要跟真是dom混合</li>
+<li><code>removeOnly</code>: 特殊flag，用于<code>&lt;transition-group&gt;</code>组件</li>
+<li><code>parentElm</code>: 父节点</li>
+<li><code>refElm</code>: 新节点将插入到<code>refElm</code>之前</li>
+</ul>
+<p><code>patch</code>的策略是：</p>
+<ol>
+<li>如果<code>vnode</code>不存在但是<code>oldVnode</code>存在，说明意图是要销毁老节点，那么就调用<code>invokeDestroyHook(oldVnode)</code>来进行销毁</li>
+<li>如果<code>oldVnode</code>不存在但是<code>vnode</code>存在，说明意图是要创建新节点，那么就调用<code>createElm</code>来创建新节点</li>
+<li>当<code>vnode</code>和<code>oldVnode</code>都存在时<ul>
+<li>如果<code>oldVnode</code>和<code>vnode</code>是同一个节点，就调用<code>patchVnode</code>来进行<code>patch</code></li>
+<li>当<code>vnode</code>和<code>oldVnode</code>不是同一个节点时，如果<code>oldVnode</code>是真实dom节点或<code>hydrating</code>设置为<code>true</code>，需要用<code>hydrate</code>函数将虚拟dom和真是dom进行映射，然后将<code>oldVnode</code>设置为对应的虚拟dom，找到<code>oldVnode.elm</code>的父节点，根据vnode创建一个真实dom节点并插入到该父节点中<code>oldVnode.elm</code>的位置</li>
+</ul>
+</li>
+</ol>
+<p>这里面值得一提的是<code>patchVnode</code>函数，因为真正的patch算法是由它来实现的（patchVnode中更新子节点的算法其实是在<code>updateChildren</code>函数中实现的，为了便于理解，我统一放到<code>patchVnode</code>中来解释）。</p>
+<p><code>patchVnode</code>算法是：</p>
+<ol>
+<li>如果<code>oldVnode</code>跟<code>vnode</code>完全一致，那么不需要做任何事情</li>
+<li>如果<code>oldVnode</code>跟<code>vnode</code>都是静态节点，且具有相同的<code>key</code>，当<code>vnode</code>是克隆节点或是<code>v-once</code>指令控制的节点时，只需要把<code>oldVnode.elm</code>和<code>oldVnode.child</code>都复制到<code>vnode</code>上，也不用再有其他操作</li>
+<li>否则，如果<code>vnode</code>不是文本节点或注释节点<ul>
+<li>如果<code>oldVnode</code>和<code>vnode</code>都有子节点，且2方的子节点不完全一致，就执行更新子节点的操作（这一部分其实是在<code>updateChildren</code>函数中实现），算法如下<ul>
+<li>分别获取<code>oldVnode</code>和<code>vnode</code>的<code>firstChild</code>、<code>lastChild</code>，赋值给<code>oldStartVnode</code>、<code>oldEndVnode</code>、<code>newStartVnode</code>、<code>newEndVnode</code></li>
+<li>如果<code>oldStartVnode</code>和<code>newStartVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，然后将<code>oldStartVnode</code>和<code>newStartVnode</code>都设置为下一个子节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img4.png" alt="img4.png" title=""></li>
+<li>如果<code>oldEndVnode</code>和<code>newEndVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，然后将<code>oldEndVnode</code>和<code>newEndVnode</code>都设置为上一个子节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img5.png" alt="img5.png" title=""></li>
+<li>如果<code>oldStartVnode</code>和<code>newEndVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，如果<code>removeOnly</code>是<code>false</code>，那么可以把<code>oldStartVnode.elm</code>移动到<code>oldEndVnode.elm</code>之后，然后把<code>oldStartVnode</code>设置为下一个节点，<code>newEndVnode</code>设置为上一个节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img6.png" alt="img6.png" title=""></li>
+<li>如果<code>newStartVnode</code>和<code>oldEndVnode</code>是同一节点，调用<code>patchVnode</code>进行<code>patch</code>，如果<code>removeOnly</code>是<code>false</code>，那么可以把<code>oldEndVnode.elm</code>移动到<code>oldStartVnode.elm</code>之前，然后把<code>newStartVnode</code>设置为下一个节点，<code>oldEndVnode</code>设置为上一个节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img7.png" alt="img7.png" title=""></li>
+<li>如果以上都不匹配，就尝试在<code>oldChildren</code>中寻找跟<code>newStartVnode</code>具有相同<code>key</code>的节点，如果找不到相同<code>key</code>的节点，说明<code>newStartVnode</code>是一个新节点，就创建一个，然后把<code>newStartVnode</code>设置为下一个节点</li>
+<li>如果上一步找到了跟<code>newStartVnode</code>相同<code>key</code>的节点，那么通过其他属性的比较来判断这2个节点是否是同一个节点，如果是，就调用<code>patchVnode</code>进行<code>patch</code>，如果<code>removeOnly</code>是<code>false</code>，就把<code>newStartVnode.elm</code>插入到<code>oldStartVnode.elm</code>之前，把<code>newStartVnode</code>设置为下一个节点，重复上述流程<img src="/2017/02/08/Vue原理解析之Virtual-Dom/img8.png" alt="img8.png" title=""></li>
+<li>如果在<code>oldChildren</code>中没有寻找到<code>newStartVnode</code>的同一节点，那就创建一个新节点，把<code>newStartVnode</code>设置为下一个节点，重复上述流程</li>
+<li>如果<code>oldStartVnode</code>跟<code>oldEndVnode</code>重合了，并且<code>newStartVnode</code>跟<code>newEndVnode</code>也重合了，这个循环就结束了</li>
+</ul>
+</li>
+<li>如果只有<code>oldVnode</code>有子节点，那就把这些节点都删除</li>
+<li>如果只有<code>vnode</code>有子节点，那就创建这些子节点</li>
+<li>如果<code>oldVnode</code>和<code>vnode</code>都没有子节点，但是<code>oldVnode</code>是文本节点或注释节点，就把<code>vnode.elm</code>的文本设置为空字符串</li>
+</ul>
+</li>
+<li>如果<code>vnode</code>是文本节点或注释节点，但是<code>vnode.text != oldVnode.text</code>时，只需要更新<code>vnode.elm</code>的文本内容就可以</li>
+</ol>
+<h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p><code>patch</code>提供了5个生命周期钩子，分别是</p>
+<ul>
+<li><code>create</code>: 创建patch时</li>
+<li><code>activate</code>: 激活组件时</li>
+<li><code>update</code>: 更新节点时</li>
+<li><code>remove</code>: 移除节点时</li>
+<li><code>destroy</code>: 销毁节点时</li>
+</ul>
+<p>这些钩子是提供给Vue内部的<code>directives</code>/<code>ref</code>/<code>attrs</code>/<code>style</code>等模块使用的，方便这些模块在patch的不同阶段进行相应的操作，这里模块定义在<code>src/core/vdom/modules</code>和<code>src/platforms/web/runtime/modules</code>2个目录中</p>
+<p><code>vnode</code>也提供了生命周期钩子，分别是</p>
+<ul>
+<li><code>init</code>: vdom初始化时</li>
+<li><code>create</code>: vdom创建时</li>
+<li><code>prepatch</code>: patch之前</li>
+<li><code>insert</code>: vdom插入后</li>
+<li><code>update</code>: vdom更新前</li>
+<li><code>postpatch</code>: patch之后</li>
+<li><code>remove</code>: vdom移除时</li>
+<li><code>destroy</code>: vdom销毁时</li>
+</ul>
+<p>vue组件的生命周期底层其实就依赖于vnode的生命周期，在<code>src/core/vdom/create-component.js</code>中我们可以看到，vue为自己的组件vnode已经写好了默认的<code>init</code>/<code>prepatch</code>/<code>insert</code>/<code>destroy</code>，而vue组件的<code>mounted</code>/<code>activated</code>就是在<code>insert</code>中触发的，<code>deactivated</code>就是在<code>destroy</code>中触发的</p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p>在Vue里面，<code>Vue.prototype.$createElement</code>对应vdom的<code>createElement</code>方法，<code>Vue.prototype.__patch__</code>对应<code>patch</code>方法，我写了个简单的demo来验证下功能</p>
+<p></p><p data-height="265" data-theme-id="0" data-slug-hash="rjZKZz" data-default-tab="html,result" data-user="JoeRay" data-embed-version="2" data-pen-title="Vue Virtual Dom" class="codepen">See the Pen <a href="http://codepen.io/JoeRay/pen/rjZKZz/" target="_blank" rel="external">Vue Virtual Dom</a> by zhulei (<a href="http://codepen.io/JoeRay" target="_blank" rel="external">@JoeRay</a>) on <a href="http://codepen.io" target="_blank" rel="external">CodePen</a>.</p><p></p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="JoeRay61 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="JoeRay61 Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/vue-js/" rel="tag"># vue.js</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/18/git常用命令速查表/" rel="next" title="git常用命令速查表">
+                <i class="fa fa-chevron-left"></i> git常用命令速查表
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/16/Vue原理解析之observer模块/" rel="prev" title="Vue原理解析之observer模块">
+                Vue原理解析之observer模块 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/joeray61.png"
+               alt="JoeRay61" />
+          <p class="site-author-name" itemprop="name">JoeRay61</p>
+           
+              <p class="site-description motion-element" itemprop="description">野蛮生长ing ~</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Joe3Ray" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/1997891561" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://schoeu.com/" title="Schoeu" target="_blank">Schoeu</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://xuexb.com/" title="前端小武" target="_blank">前端小武</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#VNode对象"><span class="nav-number">1.</span> <span class="nav-text">VNode对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VNode分类"><span class="nav-number">2.</span> <span class="nav-text">VNode分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#createElement解析"><span class="nav-number">3.</span> <span class="nav-text">createElement解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#patch原理"><span class="nav-number">4.</span> <span class="nav-text">patch原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生命周期"><span class="nav-number">5.</span> <span class="nav-text">生命周期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实践"><span class="nav-number">6.</span> <span class="nav-text">实践</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JoeRay61</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

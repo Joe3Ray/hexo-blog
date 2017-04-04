@@ -1,0 +1,820 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="javascript,underscore,源码," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="JoeRay61" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近十几天都在忙毕业论文的事，所以上一次为大家介绍完underscore这个框架的结构（或者说是这个框架的设计思路）之后就一直没动静了，今天我又满血复活了，让我们继续来探索underscore的源码奥秘吧。没看过上一篇文章的朋友可以戳这里：underscore源码解析（一）今天的内容是underscore里面封装的一些函数，我将逐个介绍，咱们直接入正题吧
+each / .each / .forEa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Underscore源码解析（二）">
+<meta property="og:url" content="http://joeray61.com/2014/06/03/Underscore源码解析（二）/index.html">
+<meta property="og:site_name" content="JoeRay61">
+<meta property="og:description" content="最近十几天都在忙毕业论文的事，所以上一次为大家介绍完underscore这个框架的结构（或者说是这个框架的设计思路）之后就一直没动静了，今天我又满血复活了，让我们继续来探索underscore的源码奥秘吧。没看过上一篇文章的朋友可以戳这里：underscore源码解析（一）今天的内容是underscore里面封装的一些函数，我将逐个介绍，咱们直接入正题吧
+each / .each / .forEa">
+<meta property="og:updated_time" content="2017-04-04T10:40:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Underscore源码解析（二）">
+<meta name="twitter:description" content="最近十几天都在忙毕业论文的事，所以上一次为大家介绍完underscore这个框架的结构（或者说是这个框架的设计思路）之后就一直没动静了，今天我又满血复活了，让我们继续来探索underscore的源码奥秘吧。没看过上一篇文章的朋友可以戳这里：underscore源码解析（一）今天的内容是underscore里面封装的一些函数，我将逐个介绍，咱们直接入正题吧
+each / .each / .forEa">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://joeray61.com/2014/06/03/Underscore源码解析（二）/"/>
+
+
+
+
+
+  <title> Underscore源码解析（二） | JoeRay61 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JoeRay61</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">make things make sense</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/06/03/Underscore源码解析（二）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Underscore源码解析（二）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-06-03T18:36:04+08:00">
+                2014-06-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近十几天都在忙毕业论文的事，所以上一次为大家介绍完underscore这个框架的结构（或者说是这个框架的设计思路）之后就一直没动静了，今天我又满血复活了，让我们继续来探索underscore的源码奥秘吧。<br>没看过上一篇文章的朋友可以戳这里：<a href="/2014/05/21/Underscore源码解析（一）/">underscore源码解析（一）</a><br>今天的内容是underscore里面封装的一些函数，我将逐个介绍，咱们直接入正题吧</p>
+<h2 id="each-each-forEach"><a href="#each-each-forEach" class="headerlink" title="each / .each / .forEach"></a>each / <em>.each / </em>.forEach</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">var each = _.each = _.forEach = function(obj, iterator, context) &#123;</div><div class="line">    // 不处理空值</div><div class="line">    if(obj == null)</div><div class="line">        return;</div><div class="line">    if(nativeForEach &amp;&amp; obj.forEach === nativeForEach) &#123;</div><div class="line">        // 如果宿主环境支持, 则优先调用JavaScript 1.6提供的forEach方法</div><div class="line">        obj.forEach(iterator, context);</div><div class="line">    &#125; else if(obj.length === +obj.length) &#123;</div><div class="line">        // 对[数组]中每一个元素执行处理器方法</div><div class="line">        for(var i = 0, l = obj.length; i &lt; l; i++) &#123;</div><div class="line">            if( i in obj &amp;&amp; iterator.call(context, obj[i], i, obj) === breaker)</div><div class="line">                return;</div><div class="line">        &#125;</div><div class="line">    &#125; else &#123;</div><div class="line">        // 对&#123;对象&#125;中每一个元素执行处理器方法</div><div class="line">        for(var key in obj) &#123;</div><div class="line">            if(_.has(obj, key)) &#123;</div><div class="line">                if(iterator.call(context, obj[key], key, obj) === breaker)</div><div class="line">                    return;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数的实现思想其实很简单，如果宿主环境（一般为浏览器或者node.js）支持原生的forEach方法，就调用原生的，否则就遍历该数组或者对象，依次调用处理器方法<br>值得一提的是在判断是否是数组的时候，这里的代码为</p>
+<blockquote>
+<p>obj.length === +obj.length</p>
+</blockquote>
+<p>这其实是一种鸭式辨型的判定方法，具体可以参见我在SF上提过的一个问题：<a href="http://segmentfault.com/q/1010000000510887" target="_blank" rel="external">点我</a></p>
+<h2 id="map-collect"><a href="#map-collect" class="headerlink" title=".map / .collect"></a><em>.map / </em>.collect</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">_.map = _.collect = function(obj, iterator, context) &#123;</div><div class="line">    // 用于存放返回值的数组</div><div class="line">    var results = [];</div><div class="line">    if(obj == null)</div><div class="line">        return results;</div><div class="line">    // 优先调用宿主环境提供的map方法</div><div class="line">    if(nativeMap &amp;&amp; obj.map === nativeMap)</div><div class="line">        return obj.map(iterator, context);</div><div class="line">    // 迭代处理集合中的元素</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        // 将每次迭代处理的返回值存储到results数组</div><div class="line">        results[results.length] = iterator.call(context, value, index, list);</div><div class="line">    &#125;);</div><div class="line">    // 返回处理结果</div><div class="line">    if(obj.length === +obj.length)</div><div class="line">        results.length = obj.length;</div><div class="line">    return results;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>map/collect函数与each的区别在于map/collect会存储每次迭代的返回值, 并作为一个新的数组返回</p>
+<h2 id="reduce-foldl-inject"><a href="#reduce-foldl-inject" class="headerlink" title=".reduce / .foldl / _.inject"></a><em>.reduce / </em>.foldl / _.inject</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">_.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) &#123;</div><div class="line">    // 通过参数数量检查是否存在初始值</div><div class="line">    var initial = arguments.length &gt; 2;</div><div class="line">    if(obj == null)</div><div class="line">        obj = [];</div><div class="line">    // 优先调用宿主环境提供的reduce方法</div><div class="line">    if(nativeReduce &amp;&amp; obj.reduce === nativeReduce &amp;&amp; false) &#123;</div><div class="line">        if(context)</div><div class="line">            iterator = _.bind(iterator, context);</div><div class="line">        return initial ? obj.reduce(iterator, memo) : obj.reduce(iterator);</div><div class="line">    &#125;</div><div class="line">    // 迭代处理集合中的元素</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        if(!initial) &#123;</div><div class="line">            // 如果没有初始值, 则将第一个元素作为初始值; 如果被处理的是对象集合, 则默认值为第一个属性的值</div><div class="line">            memo = value;</div><div class="line">            initial = true;</div><div class="line">        &#125; else &#123;</div><div class="line">            // 记录处理结果, 并将结果传递给下一次迭代</div><div class="line">            memo = iterator.call(context, memo, value, index, list);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    if(!initial)</div><div class="line">        throw new TypeError(&apos;Reduce of empty array with no initial value&apos;);</div><div class="line">    return memo;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数的作用是将集合中每个元素放入迭代处理器, 并将本次迭代的返回值作为<em>memo</em>传递到下一次迭代, 一般用于累计结果或连接数据</p>
+<h2 id="reduceRight-foldr"><a href="#reduceRight-foldr" class="headerlink" title=".reduceRight / .foldr"></a><em>.reduceRight / </em>.foldr</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">_.reduceRight = _.foldr = function(obj, iterator, memo, context) &#123;</div><div class="line">    var initial = arguments.length &gt; 2;</div><div class="line">    if(obj == null)</div><div class="line">        obj = [];</div><div class="line">    // 优先调用宿主环境提供的reduceRight方法</div><div class="line">    if(nativeReduceRight &amp;&amp; obj.reduceRight === nativeReduceRight) &#123;</div><div class="line">        if(context)</div><div class="line">            iterator = _.bind(iterator, context);</div><div class="line">        return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);</div><div class="line">    &#125;</div><div class="line">    // 逆转集合中的元素顺序</div><div class="line">    var reversed = _.toArray(obj).reverse();</div><div class="line">    if(context &amp;&amp; !initial)</div><div class="line">        iterator = _.bind(iterator, context);</div><div class="line">    // 通过reduce方法处理数据</div><div class="line">    return initial ? _.reduce(reversed, iterator, memo, context) : _.reduce(reversed, iterator);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数与reduce相似，不过它是逆向迭代集合中的元素</p>
+<h2 id="find-detect"><a href="#find-detect" class="headerlink" title=".find / .detect"></a><em>.find / </em>.detect</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">_.find = _.detect = function(obj, iterator, context) &#123;</div><div class="line">    // result存放第一个能够通过验证的元素</div><div class="line">    var result;</div><div class="line">    // 通过any方法遍历数据, 并记录通过验证的元素</div><div class="line">    any(obj, function(value, index, list) &#123;</div><div class="line">        // 如果处理器返回的结果被转换为Boolean类型后值为true, 则记录当前值并返回当前元素</div><div class="line">        if(iterator.call(context, value, index, list)) &#123;</div><div class="line">            result = value;</div><div class="line">            return true;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    return result;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个方法的作用是遍历集合中的元素, 返回能够通过处理器验证的第一个元素</p>
+<h2 id="filter-select"><a href="#filter-select" class="headerlink" title=".filter / .select"></a><em>.filter / </em>.select</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">_.filter = _.select = function(obj, iterator, context) &#123;</div><div class="line">    // 用于存储通过验证的元素数组</div><div class="line">    var results = [];</div><div class="line">    if(obj == null)</div><div class="line">        return results;</div><div class="line">    // 优先调用宿主环境提供的filter方法</div><div class="line">    if(nativeFilter &amp;&amp; obj.filter === nativeFilter)</div><div class="line">        return obj.filter(iterator, context);</div><div class="line">    // 迭代集合中的元素, 并将通过处理器验证的元素放到数组中并返回</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        if(iterator.call(context, value, index, list))</div><div class="line">            results[results.length] = value;</div><div class="line">    &#125;);</div><div class="line">    return results;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个方法与find作用类似, 但它会记录下集合中所有通过验证的元素</p>
+<h2 id="reject"><a href="#reject" class="headerlink" title="_.reject"></a>_.reject</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">_.reject = function(obj, iterator, context) &#123;</div><div class="line">    var results = [];</div><div class="line">    if(obj == null)</div><div class="line">        return results;</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        if(!iterator.call(context, value, index, list))</div><div class="line">            results[results.length] = value;</div><div class="line">    &#125;);</div><div class="line">    return results;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个方法的代码里面我没有加注释，因为整个代码与filter/select方法几乎一样，不同点在于向results数组里添加元素的时候判断条件是相反的，也就是说这个方法的作用是返回没有通过处理器验证的元素列表</p>
+<h2 id="every-all"><a href="#every-all" class="headerlink" title=".every / .all"></a><em>.every / </em>.all</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">_.every = _.all = function(obj, iterator, context) &#123;</div><div class="line">    var result = true;</div><div class="line">    if(obj == null)</div><div class="line">        return result;</div><div class="line">    // 优先调用宿主环境提供的every方法</div><div class="line">    if(nativeEvery &amp;&amp; obj.every === nativeEvery)</div><div class="line">        return obj.every(iterator, context);</div><div class="line">    // 迭代集合中的元素</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        // 这里我不太理解，为什么药写成 result = (result &amp;&amp; iterator.call(context, value, index, list)) 而不是 result = iterator.call(context, value, index, list)</div><div class="line">        if(!( result = result &amp;&amp; iterator.call(context, value, index, list)))</div><div class="line">            return breaker;</div><div class="line">    &#125;);</div><div class="line">    return !!result;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个方法的作用是如果集合中所有元素均能通过处理器验证, 则返回true</p>
+<h2 id="any-some-any"><a href="#any-some-any" class="headerlink" title="any / .some / .any"></a>any / <em>.some / </em>.any</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">var any = _.some = _.any = function(obj, iterator, context) &#123;</div><div class="line">    // 如果没有指定处理器参数, 则使用默认的处理器函数，该函数会返回参数本身</div><div class="line">    iterator || ( iterator = _.identity);</div><div class="line">    var result = false;</div><div class="line">    if(obj == null)</div><div class="line">        return result;</div><div class="line">    // 优先调用宿主环境提供的some方法</div><div class="line">    if(nativeSome &amp;&amp; obj.some === nativeSome)</div><div class="line">        return obj.some(iterator, context);</div><div class="line">    // 迭代集合中的元素</div><div class="line">    each(obj, function(value, index, list) &#123;</div><div class="line">        if(result || ( result = iterator.call(context, value, index, list)))</div><div class="line">            return breaker;</div><div class="line">    &#125;);</div><div class="line">    return !!result;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>该函数的作用是检查集合中是否有任何一个元素在被转换成Boolean类型时是否为true</p>
+<h2 id="include-contains"><a href="#include-contains" class="headerlink" title=".include / .contains"></a><em>.include / </em>.contains</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">_.include = _.contains = function(obj, target) &#123;</div><div class="line">    var found = false;</div><div class="line">    if(obj == null)</div><div class="line">        return found;</div><div class="line">    // 优先调用宿主环境提供的Array.prototype.indexOf方法</div><div class="line">    if(nativeIndexOf &amp;&amp; obj.indexOf === nativeIndexOf)</div><div class="line">        return obj.indexOf(target) != -1;</div><div class="line">    // 通过any方法迭代集合中的元素, 验证元素的值和类型与目标是否完全匹配</div><div class="line">    found = any(obj, function(value) &#123;</div><div class="line">        return value === target;</div><div class="line">    &#125;);</div><div class="line">    return found;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这个函数用于检查集合中是否有值与目标参数完全匹配，包括数据类型</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>今天先介绍以上10个函数的实现细节，之后还会继续带来其他函数的介绍，欢迎大家提出指正和建议，thx for reading, hope u enjoy</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat.jpg" alt="JoeRay61 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="JoeRay61 Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+            <a href="/tags/underscore/" rel="tag"># underscore</a>
+          
+            <a href="/tags/源码/" rel="tag"># 源码</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/05/21/Underscore源码解析（一）/" rel="next" title="Underscore源码解析（一）">
+                <i class="fa fa-chevron-left"></i> Underscore源码解析（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/06/06/Underscore源码解析（三）/" rel="prev" title="Underscore源码解析（三）">
+                Underscore源码解析（三） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/joeray61.png"
+               alt="JoeRay61" />
+          <p class="site-author-name" itemprop="name">JoeRay61</p>
+           
+              <p class="site-description motion-element" itemprop="description">野蛮生长ing ~</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Joe3Ray" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/1997891561" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://schoeu.com/" title="Schoeu" target="_blank">Schoeu</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://xuexb.com/" title="前端小武" target="_blank">前端小武</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#each-each-forEach"><span class="nav-number">1.</span> <span class="nav-text">each / .each / .forEach</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#map-collect"><span class="nav-number">2.</span> <span class="nav-text">.map / .collect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduce-foldl-inject"><span class="nav-number">3.</span> <span class="nav-text">.reduce / .foldl / _.inject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduceRight-foldr"><span class="nav-number">4.</span> <span class="nav-text">.reduceRight / .foldr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#find-detect"><span class="nav-number">5.</span> <span class="nav-text">.find / .detect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#filter-select"><span class="nav-number">6.</span> <span class="nav-text">.filter / .select</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reject"><span class="nav-number">7.</span> <span class="nav-text">_.reject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#every-all"><span class="nav-number">8.</span> <span class="nav-text">.every / .all</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#any-some-any"><span class="nav-number">9.</span> <span class="nav-text">any / .some / .any</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#include-contains"><span class="nav-number">10.</span> <span class="nav-text">.include / .contains</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number"></span> <span class="nav-text">小结</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JoeRay61</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://joeray61.com/"/>
-  <updated>2017-04-04T10:04:14.000Z</updated>
+  <updated>2017-05-21T06:18:46.000Z</updated>
   <id>http://joeray61.com/</id>
   
   <author>
@@ -14,6 +14,82 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>rollup 初体验</title>
+    <link href="http://joeray61.com/2017/05/21/rollup-%E5%88%9D%E4%BD%93%E9%AA%8C/"/>
+    <id>http://joeray61.com/2017/05/21/rollup-初体验/</id>
+    <published>2017-05-21T06:16:27.000Z</published>
+    <updated>2017-05-21T06:18:46.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>rollup 是 JavaScript 模块打包工具，能够将多个具有引用依赖关系的脚本文件打包成一个文件，并且能够做到只引入使用到的代码，如果使用 ES6 的模块系统的话。举个简单的栗子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">// foo.js</div><div class="line">export let a = &apos;hello world!&apos;;</div><div class="line">export let b = &apos;hello rollup!&apos;;</div><div class="line"></div><div class="line">// main.js</div><div class="line">import &#123;a&#125; from &apos;./foo&apos;;</div><div class="line"></div><div class="line">export default () =&gt; &#123;</div><div class="line">  console.log(`the string is $&#123;a&#125;`);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以<code>main.js</code>作为程序入口，使用<code>rollup</code>打包后的代码是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">// bundle.js</div><div class="line">&apos;use strict&apos;;</div><div class="line"></div><div class="line">var a = &apos;hello world!&apos;;</div><div class="line"></div><div class="line">var main = (function () &#123;</div><div class="line">  console.log(&apos;the string is &apos; + a);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">module.exports = main;</div></pre></td></tr></table></figure>
+<p>可以看到，<code>foo.js</code>和<code>main.js</code>被打包到<code>bundle.js</code>中，并且只引入了<code>foo.js</code>中使用到的<code>export let a = &#39;hello world!&#39;;</code></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>局部安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm i rollup</div></pre></td></tr></table></figure>
+<p>全局安装（可能需要<code>sudo</code>）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm i -g rollup</div></pre></td></tr></table></figure>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="CLI"><a href="#CLI" class="headerlink" title="CLI"></a>CLI</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">$ rollup</div><div class="line"></div><div class="line">rollup 版本 0.41.6</div><div class="line">=====================================</div><div class="line"></div><div class="line">用法: rollup [选项] &lt;入口文件&gt;</div><div class="line"></div><div class="line">基础选项:</div><div class="line"></div><div class="line">-v, --version            显示版本号</div><div class="line">-h, --help               显示帮助信息</div><div class="line">-c, --config             使用这个配置文件 （如果使用了该参数，但是并没有指定具体的配置文</div><div class="line">                            p.config.js`）</div><div class="line">-w, --watch              观察要打包文件的变动，并且在有变动时重新打包</div><div class="line">-i, --input              输入 （另一种指定&lt;入口文件&gt;的方式）</div><div class="line">-o, --output &lt;output&gt;    输出 （如果缺省，则输出到控制台）</div><div class="line">-f, --format [es]        输出类型 (amd, cjs, es, iife, umd)</div><div class="line">-e, --external           用逗号分隔的不需要打包的模块 ID 列表</div><div class="line">-g, --globals            用逗号分隔的`module ID:Global`键值对</div><div class="line">                            任何在这里定义的模块 ID 都会被加入到 external 选项中</div><div class="line">-n, --name               UMD 输出的命名</div><div class="line">-u, --id                 AMD 模块的 ID （默认是匿名的）</div><div class="line">-m, --sourcemap          生成 sourcemap (`-m inline`用于生成内联map)</div><div class="line">--no-strict              不要在生成的模块中声明`use strict;`</div><div class="line">--no-indent              不要缩进结果</div><div class="line">--environment &lt;values&gt;   传给配置文件的设置 (见示例)</div><div class="line">--no-conflict            为 UMD 模块生成一个 noConflict 方法</div><div class="line">--silent                 不要打印警告</div><div class="line">--intro                  需要插入到包顶部的内容（在 amd/umd/iife 包装函数的内部）</div><div class="line">--outro                  需要插入到包底部的内容（在 amd/umd/iife 包装函数的内部）</div><div class="line">--banner                 需要插入到包顶部的内容（在 amd/umd/iife 包装函数的外部）</div><div class="line">--footer                 需要插入到包底部的内容（在 amd/umd/iife 包装函数的外部）</div><div class="line"></div><div class="line">示例：</div><div class="line"></div><div class="line"># 在配置文件中使用设置</div><div class="line">rollup -c</div><div class="line"></div><div class="line"># 在配置文件中, process.env.INCLUDE_DEPS === &apos;true&apos;</div><div class="line"># 并且 process.env.BUILD === &apos;production&apos;</div><div class="line">rollup -c --environment INCLUDE_DEPS,BUILD:production</div><div class="line"></div><div class="line"># 从 src/main.js 创建 CommonJS 类型的包 bundle.js</div><div class="line">rollup --format=cjs --output=bundle.js -- src/main.js</div><div class="line"></div><div class="line"># 创建一个使用`window.jQuery`和`window._`这两个全局变量的自执行的函数</div><div class="line">rollup -f iife --globals jquery:jQuery,lodash:_ \</div><div class="line">  -i src/app.js -o build/app.js -m build/app.js.map</div><div class="line"></div><div class="line">注意：</div><div class="line"></div><div class="line">* 当输出到控制台时，只允许使用内联 sourcemaps</div><div class="line"></div><div class="line">访问 https://github.com/rollup/rollup/wiki 获取更多信息</div></pre></td></tr></table></figure>
+<h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><p>跟 webpack 一样，rollup 也可以使用配置文件，通过 cli 的<code>-c</code>参数来指定配置文件，默认为当前目录下的<code>rollup.config.js</code>。</p>
+<p>使用配置文件有几点好处：</p>
+<ul>
+<li>重复编译时，不需要重复输入大段的 CLI 配置参数</li>
+<li>配置文件中我们可以进行编程，这样能够完成一些纯靠 CLI 参数无法完成的配置</li>
+</ul>
+<p>配置文件需要输出一个配置对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// rollup.config.js</div><div class="line">export default &#123;</div><div class="line">    // write config key: value pair here</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>常用的配置项其实跟 CLI 大同小异，具体如下：</p>
+<ul>
+<li><code>entry</code>: String，入口文件路径</li>
+<li><code>format</code>: String，输出类型 (<code>amd</code>, <code>cjs</code>, <code>es</code>, <code>iife</code>, <code>umd</code>)</li>
+<li><code>plugins</code>: Array，插件声明</li>
+<li><code>external</code>: Array，不需要打包的文件</li>
+<li><code>dest</code>: String，输出的打包文件</li>
+<li><code>sourceMap</code>: Boolean，是否要支持 sourcemap</li>
+</ul>
+<h3 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h3><p>rollup 的插件一般以 npm 包的形式引入，在配置文件中 plugins 里面声明。下面我介绍几个常用的 rollup 插件</p>
+<h4 id="rollup-plugin-json"><a href="#rollup-plugin-json" class="headerlink" title="rollup-plugin-json"></a>rollup-plugin-json</h4><p>需要加载 json 文件的数据时，可以通过<code>rollup-plugin-json</code>这个插件</p>
+<h4 id="rollup-plugin-node-resolve"><a href="#rollup-plugin-node-resolve" class="headerlink" title="rollup-plugin-node-resolve"></a>rollup-plugin-node-resolve</h4><p>这个插件可以让 rollup 更加智能地找到各个需要打包的文件路径</p>
+<h4 id="rollup-plugin-commonjs"><a href="#rollup-plugin-commonjs" class="headerlink" title="rollup-plugin-commonjs"></a>rollup-plugin-commonjs</h4><p>目前大多数的 npm 包还是以 CommonJS 模块的形式对外 export，rollup 本身无法解析他们，需要用<code>rollup-plugin-commonjs</code>先把他们转换成 ES6 的模块</p>
+<h4 id="rollup-plugin-babel"><a href="#rollup-plugin-babel" class="headerlink" title="rollup-plugin-babel"></a>rollup-plugin-babel</h4><p>熟悉 babel 的人大概已经猜到了，这个插件能让 rollup 具有 babel 的能力，可以用来转换 ES6 的代码，在使用前需要先配置<code>.babelrc&#39;，要注意的是不能用 babel 转换 ES6 的模块，因为 rollup 的打包是依赖于 ES6 模块的。</code>.babelrc`配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  &quot;presets&quot;: [</div><div class="line">    [&quot;latest&quot;, &#123;</div><div class="line">      &quot;es2015&quot;: &#123;</div><div class="line">        &quot;modules&quot;: false</div><div class="line">      &#125;</div><div class="line">    &#125;]</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="API"><a href="#API" class="headerlink" title="API"></a>API</h3><p>rollup 可以作为一个包引入到 js 程序中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">var rollup = require(&apos;rollup&apos;);</div></pre></td></tr></table></figure>
+<p>他提供了几个 API:</p>
+<h4 id="rollup-rollup-options"><a href="#rollup-rollup-options" class="headerlink" title="rollup.rollup(options)"></a>rollup.rollup(options)</h4><p>根据 options 选项执行打包过程，返回一个 Promise 对象，该对象在调用 resolve 时会传入打包后的<code>bundle</code>对象</p>
+<h4 id="bundle-generate-options"><a href="#bundle-generate-options" class="headerlink" title="bundle.generate(options)"></a>bundle.generate(options)</h4><p>根据 options 生成代码，返回一个<code>{code, sourcemap}</code>对象</p>
+<h4 id="bundle-write-options"><a href="#bundle-write-options" class="headerlink" title="bundle.write(options)"></a>bundle.write(options)</h4><p>与<code>bundle.generate</code>类似，但是可以直接将编译结果写入到文件中。</p>
+<p>以上只对 API 的功能做了简要介绍，具体可以参考<a href="https://github.com/rollup/rollup/wiki/JavaScript-API" target="_blank" rel="external">官方wiki</a></p>
+<h2 id="Tree-Shaking"><a href="#Tree-Shaking" class="headerlink" title="Tree-Shaking"></a>Tree-Shaking</h2><p>rollup 中的 Tree-Shaking 又叫<code>live code inclusion</code>，能够做到只引入使用的代码，减少打包后的文件大小，这与我们常说的<code>DCE( Dead Code Elimination)</code>目的一致，但是做法相反，DCE 的思路是提出不用的代码，从语义上来说，DCE 更符合 Tree-Shaking 的表述（想象熊孩子在摇晃一棵树，树上一些枯死的枝芽都被晃掉下来了）。</p>
+<p>其实 rollup 的 Tree-Shaking 也只是处理了顶层的 AST，所以 rollup 处理后的代码仍然可能存在冗余，另外，Tree-Shaking 也不是代码压缩，所以也需要在这之后使用代码压缩工具进一步缩小文件大小。</p>
+<p>Tree-Shaking的实现主要归功于 ES6 的模块，ES6 的模块是静态的 import 和 export，基于这个特性才能够进行模块的静态分析，这是在动态的 CommonJS 和 AMD 模块里无法做到的。这也是为什么 rollup 要求使用 ES6 模块的原因。</p>
+<p>推荐大家阅读一下 Rich Harris 的这篇文章：<a href="https://medium.com/@Rich_Harris/tree-shaking-versus-dead-code-elimination-d3765df85c80" target="_blank" rel="external">Tree-shaking versus dead code elimination</a>（需要翻墙）</p>
+<h2 id="rollup-vs-webpack"><a href="#rollup-vs-webpack" class="headerlink" title="rollup vs webpack"></a>rollup vs webpack</h2><p>同样是打包工具，我们自然要将 rollup 和 webpack 比较一番，以下是我认为的几点区别，不一定对，欢迎留言讨论</p>
+<ol>
+<li>rollup 一般用于 JavaScript 库的开发，而 webpack 一般用于 web 应用的开发</li>
+<li>rollup 希望打包后的代码还是像人写的代码，而不是机器生成的代码，所以 rollup 不会给每个模块包上一层 function，也不会在打包后的文件顶部加上一个模块加载器，而 webpack 相反</li>
+<li>基于第 2 点，rollup 打包后的文件比 webpack 打包后的文件更小</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;rollup 是 JavaScript 模块打包工具，能够将多个具有引用依赖关系的脚本文件打包成一个文件，并且能够做到只引入使用到的代码，如
+    
+    </summary>
+    
+      <category term="技术" scheme="http://joeray61.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="rollup" scheme="http://joeray61.com/tags/rollup/"/>
+    
+      <category term="打包" scheme="http://joeray61.com/tags/%E6%89%93%E5%8C%85/"/>
+    
+      <category term="webpack" scheme="http://joeray61.com/tags/webpack/"/>
+    
+  </entry>
   
   <entry>
     <title>Vue原理解析之observer模块</title>

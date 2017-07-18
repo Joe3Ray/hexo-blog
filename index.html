@@ -316,6 +316,400 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2017/07/18/eslint-学习笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/07/18/eslint-学习笔记/" itemprop="url">
+                  eslint 学习笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-18T23:09:36+08:00">
+                2017-07-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/07/18/eslint-学习笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/07/18/eslint-学习笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>局部：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install eslint --save-dev</div></pre></td></tr></table></figure>
+<p>全局：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install eslint -g</div></pre></td></tr></table></figure>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eslint --init</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Note: 此处及以后都假设全局安装<code>eslint</code>或者在<code>npm script</code>中使用<code>eslint</code></p>
+</blockquote>
+<h2 id="使用eslint进行校验"><a href="#使用eslint进行校验" class="headerlink" title="使用eslint进行校验"></a>使用eslint进行校验</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eslint file.js</div></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h3 id="parser"><a href="#parser" class="headerlink" title="parser"></a>parser</h3><p>指定<code>eslint</code>使用的 parser，默认是<code>Espree</code>，除此之外常用的还有：</p>
+<ul>
+<li>Esprima</li>
+<li>Babel-ESLint</li>
+</ul>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;parser&quot;: &quot;esprima&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="parserOptions"><a href="#parserOptions" class="headerlink" title="parserOptions"></a>parserOptions</h3><p>指定传给 parser 的信息</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;parserOptions&quot;: &#123;</div><div class="line">        &quot;ecmaVersion&quot;: 6,</div><div class="line">        &quot;sourceType&quot;: &quot;module&quot;,</div><div class="line">        &quot;ecmaFeatures&quot;: &#123;</div><div class="line">            &quot;jsx&quot;: true</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="env"><a href="#env" class="headerlink" title="env"></a>env</h3><p>指定程序运行的环境，这关系到有哪些预先定义好的全局变量</p>
+<ul>
+<li>browser - 浏览器中的全局变量</li>
+<li>node - nodejs中的全局变量</li>
+<li>es6 - 启用 es6 中除了模块之外的其他特性（这会自动将<code>parserOptions.ecmaVersion</code>设置为<code>6</code>）</li>
+<li>worker - web worker中的全局变量</li>
+<li>mocha - mocha 测试框架中的全局变量</li>
+<li>…</li>
+</ul>
+<blockquote>
+<p>Note: 可以同时定义多个<code>env</code></p>
+</blockquote>
+<p><code>.eslintrc</code>示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;env&quot;: &#123;</div><div class="line">        &quot;browser&quot;: true,</div><div class="line">        &quot;node&quot;: true</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="globals"><a href="#globals" class="headerlink" title="globals"></a>globals</h3><p>全局变量申明，<code>true</code>表示允许改写，<code>false</code>表示不允许改写</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;globals&quot;: &#123;</div><div class="line">        &quot;var1&quot;: true,</div><div class="line">        &quot;var2&quot;: false</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="plugins"><a href="#plugins" class="headerlink" title="plugins"></a>plugins</h3><p>声明使用了哪些插件，插件名可以默认忽略<code>eslint-plugin-</code>前缀，这些插件可以用于<code>rules</code>、<code>env</code>和<code>extends</code>等配置中</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;plugins&quot;: [</div><div class="line">        &quot;example&quot; // or &quot;eslint-plugin-example&quot;</div><div class="line">    ],</div><div class="line">    &quot;env&quot;: &#123;</div><div class="line">        &quot;example/custom&quot;: true</div><div class="line">    &#125;,</div><div class="line">    &quot;extends&quot;: [</div><div class="line">        &quot;eslint:recommended&quot;,</div><div class="line">        &quot;plugin:example/recommended&quot;</div><div class="line">    ],</div><div class="line">    &quot;rules&quot;: &#123;</div><div class="line">       &quot;example/rule1&quot;: &quot;error&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="extends"><a href="#extends" class="headerlink" title="extends"></a>extends</h3><p>继承一套基础配置</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;extends&quot;: &quot;eslint:recommended&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="rules"><a href="#rules" class="headerlink" title="rules"></a>rules</h3><p>具体校验规则的配置</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;rules&quot;: &#123;</div><div class="line">       &quot;no-set-state&quot;: &quot;off&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>可以参考 <a href="http://eslint.org/docs/rules/" target="_blank" rel="external">http://eslint.org/docs/rules/</a> 了解更多<code>rule</code></p>
+</blockquote>
+<h3 id="settings"><a href="#settings" class="headerlink" title="settings"></a>settings</h3><p>共享的配置，配置中的信息将会被传递给所有要执行的规则（rule）</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;settings&quot;: &#123;</div><div class="line">        &quot;sharedData&quot;: &quot;Hello&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="注释配置"><a href="#注释配置" class="headerlink" title="注释配置"></a>注释配置</h2><p>注释配置是指在<code>js</code>文件中通过注释来单独指定一些校验信息</p>
+<h3 id="env-1"><a href="#env-1" class="headerlink" title="env"></a>env</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/* eslint-env node, mocha */</div></pre></td></tr></table></figure>
+<h3 id="global"><a href="#global" class="headerlink" title="global"></a>global</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/* global var1:false, var2:false */</div></pre></td></tr></table></figure>
+<h3 id="rule"><a href="#rule" class="headerlink" title="rule"></a>rule</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/* eslint eqeqeq: 0, curly: 2 */</div></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>“off” or 0: 关闭这条规则</li>
+<li>“warn” or 1: 开启规则，如果校验有问题则抛出警告</li>
+<li>“error” or 2: 开启规则，如果校验有问题则抛出错误</li>
+</ul>
+</blockquote>
+<h3 id="关闭-开启所有规则校验"><a href="#关闭-开启所有规则校验" class="headerlink" title="关闭/开启所有规则校验"></a>关闭/开启所有规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">/* eslint-disable */</div><div class="line"></div><div class="line">alert(&apos;foo&apos;);</div><div class="line"></div><div class="line">/* eslint-enable */</div></pre></td></tr></table></figure>
+<h3 id="关闭-开启校验部分具体的规则校验"><a href="#关闭-开启校验部分具体的规则校验" class="headerlink" title="关闭/开启校验部分具体的规则校验"></a>关闭/开启校验部分具体的规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">/* eslint-disable no-alert, no-console */</div><div class="line"></div><div class="line">alert(&apos;foo&apos;);</div><div class="line">console.log(&apos;bar&apos;);</div><div class="line"></div><div class="line">/* eslint-enable no-alert, no-console */</div></pre></td></tr></table></figure>
+<h3 id="关闭当前行的所有规则校验"><a href="#关闭当前行的所有规则校验" class="headerlink" title="关闭当前行的所有规则校验"></a>关闭当前行的所有规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alert(&apos;foo&apos;); // eslint-disable-line</div></pre></td></tr></table></figure>
+<h3 id="关闭下一行的所有规则校验"><a href="#关闭下一行的所有规则校验" class="headerlink" title="关闭下一行的所有规则校验"></a>关闭下一行的所有规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">// eslint-disable-next-line</div><div class="line">alert(&apos;foo&apos;);</div></pre></td></tr></table></figure>
+<h3 id="关闭当前行的具体规则校验"><a href="#关闭当前行的具体规则校验" class="headerlink" title="关闭当前行的具体规则校验"></a>关闭当前行的具体规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alert(&apos;foo&apos;); // eslint-disable-line no-alert</div></pre></td></tr></table></figure>
+<h3 id="关闭下一行的具体规则校验"><a href="#关闭下一行的具体规则校验" class="headerlink" title="关闭下一行的具体规则校验"></a>关闭下一行的具体规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">// eslint-disable-next-line no-alert</div><div class="line">alert(&apos;foo&apos;);</div></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2017/05/26/【译】JavaScript分号插入-所有你需要知道的事/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/05/26/【译】JavaScript分号插入-所有你需要知道的事/" itemprop="url">
+                  【译】JavaScript分号插入 - 所有你需要知道的事
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-26T14:42:06+08:00">
+                2017-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/05/26/【译】JavaScript分号插入-所有你需要知道的事/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/05/26/【译】JavaScript分号插入-所有你需要知道的事/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文地址：<a href="http://inimino.org/~inimino/blog/javascript_semicolons" target="_blank" rel="external">http://inimino.org/~inimino/blog/javascript_semicolons</a></p>
+</blockquote>
+<p>分号自动插入是 JavaScript 最具争议的语法特点之一，人们对于这个特点有许多误解。</p>
+<p>一些 JavaScript 程序员在每一条语句后面使用分号，还有一些只在必要的时候使用分号。大部分人介于这两者之间，有些甚至添加额外的分号作为风格。</p>
+<p>即使你在每一行语句的结尾都加上分号，一些构建工具还是会转换成不明显的方式。不管你在使用分号这件事上是何种偏好，你必须知道如何能够专业地书写 JavaScript 代码。如果你能记住下面要说的这几种简单规则，你就能理解任何你有可能遇到的程序是如何被解析的，并且对 JavaScript 自动插入分号的机制了如指掌。</p>
+<h2 id="何时允许使用分号"><a href="#何时允许使用分号" class="headerlink" title="何时允许使用分号"></a>何时允许使用分号</h2><p>在 ECMAScirpt 标准中给出的正式语法，分号出现在每一句他们能出现的语句的末尾。比如<code>do-while</code>语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">do Statement while ( Expression ) ;</div></pre></td></tr></table></figure>
+<p>分号也会出现在变量声明语句、表达式语句（例如<code>&quot;4 + 4;&quot;</code> 或者<code>&quot;f();&quot;</code>）、continue、return、break、throw 和 debugger 语句后。</p>
+<p>空语句只有一个分号，这在 JavaScript 中也是合法的。因此，<code>;;;</code>是一句合法的 JavaScript 语句，它会被解析成三条空语句，运行时不做任何事，如此重复三次。</p>
+<p>有时候空语句的确是有用的，至少从语法上来说是这样。举个例子，要写一个无限循环，可以写<code>while(1);</code>，这里分号会被解析成空语句，这样<code>while</code>语句在语法上就是合法的。如果删掉分号，那<code>while</code>语句就不完整了，因为循环条件后面必须要有其他语句。</p>
+<p>最后，分号也会出现在 for 循环语句中，例如<code>for ( Expression ; Expression ; Expression ) Statement</code>的形式，当然还有字符串和常规的字面量表达式中也会出现分号。</p>
+<h2 id="何时可以删除分号"><a href="#何时可以删除分号" class="headerlink" title="何时可以删除分号"></a>何时可以删除分号</h2><p>在 ECMAScript 标准的正式语法中，分号就是按照上述的场景来引入的。但是，标准随后也给出了一些规则，这些规则描述了真实的解析过程与正式语法的区别。分号会在解析时被插入到标记流中，尽快这只是规范层面的遍历用法。实际上，解析器并不需要生成假的分号标记，而是把分号视为在语法中特定位置可选（比如可以参考<a href="http://boshi.inimino.org/3box/PanPG/grammars/ECMAScript_5.peg" target="_blank" rel="external">this parser expression grammar for ECMAScript</a>，尤其是<code>Statement</code>，<code>EOS</code>，<code>EOSnoLB</code>和<code>SnoLB</code>规则）。插入了分号，就意味着当前正在被解析的这条语句结束了。</p>
+<p>分号插入规则在<a href="http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf" target="_blank" rel="external">ECMA-262 [pdf]</a>的 7.9 章节有具体说明。</p>
+<p>这一章节指出了 3 条基本规则，以及 2 个例外情况。</p>
+<p>规则是：</p>
+<ol>
+<li>当程序出现了一个不是正式语法允许的标记，如果 (a) 在那里有一个换行，或者 (b) 那个意外标记是一个关闭的大括号，就会插入一个分号</li>
+<li>当一个文件已经到最后了，如果程序无法继续被解析，就会插入分号</li>
+<li></li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://joeray61.com/2017/05/21/rollup-初体验/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2151,401 +2545,6 @@ var f = new Fn();    // Error
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2015/04/08/初探WebRTC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="JoeRay61">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/joeray61.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="JoeRay61">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/04/08/初探WebRTC/" itemprop="url">
-                  初探WebRTC
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-08T18:16:10+08:00">
-                2015-04-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2015/04/08/初探WebRTC/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2015/04/08/初探WebRTC/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>##简介</p>
-<blockquote>
-<p>WebRTC is a new front in the long war for an open and unencumbered web.    </p>
-</blockquote>
-<p>这句话是JavaScript之父<em>Brendan Eich</em>对于WebRTC的评价，大致意思是『WebRTC是争取开放和无阻碍Web的漫长战争中一条新战线』。</p>
-<p>那么WebRTC到底是一种什么样的技术呢？WebRTC是一个免费的开放项目，提供了几个简单的API让浏览器、手机平台还有其他设备通过一个通用的协议进行实时通信，帮助开发者开发出丰富而且高质量的跨平台实时通信应用。</p>
-<p>本文的目的就是通过简洁的介绍和引导让开发者了解WebRTC的工作流程并能够快速上手开发WebRTC应用。</p>
-<p>##API</p>
-<ul>
-<li><p><strong>MediaStream(getUserMedia)</strong>    </p>
-<p>  MediaStream表示一段多媒体流，获取多媒体流的一个简单方式就是通过        <strong>getUserMedia</strong>函数，该函数可以调用设备的摄像头和麦克风，并拿到这些硬件生成的多媒体流。这些多媒体流可以输出到<code>video</code>标签或者一个<strong>RTCPeerConnection</strong>。</p>
-<p>  <strong>getUserMedia</strong>接受3个参数：</p>
-<ol>
-<li>一个限制对象，用于指定接受的流</li>
-<li>获取stream成功后的回调函数，被调用时能获取到对应的流</li>
-<li><p>获取stream失败后的回调函数，被调用时能获取到一个错误对象</p>
-<p>具体用法如下所示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">var getUserMedia = navigator.getUserMedia || </div><div class="line">                      navigator.webkitGetUserMedia ||</div><div class="line">                      navigator.mozGetUserMedia;</div><div class="line">   var constraints = &#123;video: true&#125;;</div><div class="line">   getUserMedia(constraints, function (stream) &#123;</div><div class="line">       var video = document.querySelector(&quot;video&quot;);</div><div class="line">       //URL.createObjectURL方法把stream转换成blob，作为video的src属性进行播放</div><div class="line">       video.src = window.URL.createObjectURL(stream);</div><div class="line">       video.play();</div><div class="line">   &#125;, function (error) &#123;</div><div class="line">       console.log(error);</div><div class="line">   &#125;);</div></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
-</ul>
-<ul>
-<li><strong>RTCPeerConnection</strong></li>
-</ul>
-<p>RTCPeerConnection帮我们做了很多事情，我们只需要把RTCPeerConnection理解成一种p2p传输音视频数据的通道，但是我们仍然还需要服务器来为我们传递消息，因为在建立p2p之前需要先互相交换session、网络配置、媒体适配等信息。另外，WebRTC还需要服务器帮助完成NAT穿越，以及在p2p建立失败的时候作为中转服务器。具体用法将在流程讲解中说明。</p>
-<ul>
-<li><p><strong>RTCDataChannel</strong></p>
-<p>  WebRTC除了支持视频和音频流之外，还支持其他类型的数据。RTCDataChannel用于点到点的任意数据交换，具有低延迟和高吞吐量的特点。RTCDataChannel必须建立在RTCPeerConnnection之上，没办法单独工作。</p>
-<p>  这个API潜在的应用场景很多，例如：</p>
-<ul>
-<li>游戏</li>
-<li>远程桌面应用</li>
-<li>实时文字聊天</li>
-<li><p>文件传输</p>
-<p>创建一个RTCDataChannel的方式如下：    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">   var RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;</div><div class="line">var peerConn = new RTCPeerConnection();</div><div class="line">   var dc = peerConn.createDataChannel(&quot;label&quot;);</div></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-<p>##流程讲解</p>
-<p>看完上面的内容，大家应该还是处于云里雾里的状态，不知道WebRTC应用要如何开发，3个API如何配合使用。没关系，这里才是重点，看完这一段，相信你的所有疑惑就都解开了。</p>
-<p>要用WebRTC建立一个p2p通道需要经历2个步骤：</p>
-<ol>
-<li><p>获得本机SDP描述符并交换</p>
-<ul>
-<li>A、B均实例化一个RTCPeerConnection(以下简称rpcA和rpcB),调用rpcA的<code>createOffer()</code>方法建立一个offer信令，并且拿到A的SDP</li>
-<li>通过rpcA的<code>setLocalDescription()</code>方法设置A机器的本地描述</li>
-<li>A通过服务器将offer信令发给B</li>
-<li>B接收到A的offer信令，通过rpcB的<code>setRemoteDescription()</code>方法设置远程机器（即A）的描述</li>
-<li>B调用rpcB的<code>createAnswer()</code>方法建立一个answer信令，并且拿到B的SDP</li>
-<li>通过rpcB的<code>setLocalDescription()</code>方法设置B机器的本地描述</li>
-<li>B通过服务器将answer信令发送给A</li>
-<li><p>A接收到B的answer信令，通过rpcA的<code>setRemoteDescription()</code>方法设置远程机器B的描述</p>
-<p>这个过程完成后，A和B就都拿到各自的SDP描述符了</p>
-</li>
-</ul>
-</li>
-<li><p>通过ICE框架连接两段主机的网络地址</p>
-<p> ICE框架具体内容我不清楚，咱们姑且先了解在WebRTC中如何使用，对ICE感兴趣的同学可以自行谷歌。</p>
-<p> 在实例化RTCPeerConnection对象的时候可以传入ICE服务器的地址，我们可以使用谷歌提供的『stun:stun.l.google.com:19302』或者Mozilla提供的『stun:stun.services.mozilla.com』，代码如下：</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">var configuration = &#123;iceServers: [&#123;url: &quot;stun:stun.l.google.com:19302&quot;&#125;]&#125;;</div><div class="line">var rpc = new RTCPeerConnection(configuration);</div></pre></td></tr></table></figure>
-<p> 在rpc上绑定onicecandidate事件的回调函数，当网络候选可用时这个函数会被调用，在这个回调函数中，本机可以拿到ice candidate信令，然后通过服务器发给远程机器，远程机器通过自己的rpc实例的<code>addIceCandidate()</code>方法添加，同样地，远程机器也应该将自己的ice candidate信令通过服务器发送给本机。</p>
-<p> 当双方的ice candidate交换完成时，连接就建立成功了，可以在rpc示例上调用<code>addStream()</code>来添加流，另一边通过绑定onaddstream事件就可以获取到传过去的流。</p>
-<p> 服务器通信部分，没有规定必须要用某种协议，所以只要能在两边传输消息的技术可以使用，例如<em>WebSocket</em>、<em>XHR</em>等，大家自行选择即可。<br>##示例</p>
-</li>
-</ol>
-<p>本来想自己写个例子给大家参考的，后来发现网上有个非常棒的实例教程，我就直接上地址了<a href="https://bitbucket.org/webrtc/codelab" target="_blank" rel="external">https://bitbucket.org/webrtc/codelab</a></p>
-<p>##小结</p>
-<p>写这篇文章的目的是为了让学习WebRTC的同学能够快速上手，对WebRTC技术有个整体的概念，所以文章写的比较简短，专注于讲解WebRTC的运作流程，对一些相关技术，比如ICE、SDP等没有深入探讨（当然我也不太懂）。如果你想快速上手制作WebRTC应用，看完这篇文章再对着<a href="https://bitbucket.org/webrtc/codelab" target="_blank" rel="external">codelab</a>提供的例子一步一步跟着做应该就没问题了。Good luck!</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://www.html5rocks.com/en/tutorials/webrtc/basics/" target="_blank" rel="external">http://www.html5rocks.com/en/tutorials/webrtc/basics/</a></li>
-<li><a href="http://www.webrtc.org/" target="_blank" rel="external">http://www.webrtc.org/</a></li>
-<li><a href="http://www.w3.org/TR/webrtc/" target="_blank" rel="external">http://www.w3.org/TR/webrtc/</a></li>
-<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/WebRTC" target="_blank" rel="external">https://developer.mozilla.org/en-US/docs/Glossary/WebRTC</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/09/21/Javascript实现图片的预加载功能/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="JoeRay61">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/joeray61.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="JoeRay61">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/09/21/Javascript实现图片的预加载功能/" itemprop="url">
-                  Javascript实现图片的预加载功能
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-09-21T18:18:24+08:00">
-                2014-09-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2014/09/21/Javascript实现图片的预加载功能/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/09/21/Javascript实现图片的预加载功能/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>最近要用<code>javascript</code>做一个动画功能，为了确保动画在播放的时候能够顺利和平滑，我需要对所用到的图片素材进行<strong><em>预加载</em></strong>，下面跟大家分享一下我实现这个功能的过程</p>
-<p>##单图片预加载##<br>目前最常见的一种实现方式如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">function preloadImg(url) &#123;</div><div class="line">	var img = new Image();</div><div class="line">    img.src = url;</div><div class="line">    if(img.complete) &#123;</div><div class="line">    	//接下来可以使用图片了</div><div class="line">        //do something here</div><div class="line">    &#125;</div><div class="line">    else &#123;</div><div class="line">    	img.onload = function() &#123;</div><div class="line">        	//接下来可以使用图片了</div><div class="line">        	//do something here</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>首先实例化一个<code>Image</code>对象赋值给<code>img</code>，然后设置<code>img.src</code>为参数<code>url</code>指定的图片地址,接着判断<code>img</code>的<code>complete</code>属性，如果本地有这张图片的缓存，则该值为<code>true</code>，此时我们可以直接操作这张图片，如果本地没有缓存，则该值为<code>false</code>，此时我们需要监听<code>img</code>的<code>onload</code>事件，把对<code>img</code>的操作放在<code>onload</code>的回调函数里面，经过测试，这种方案基本能够兼容目前所有浏览器</p>
-<p>##多图片预加载##<br>很多场景下，单图片预加载并不能满足我们的需求，因为像动画这种功能通常都会有很多的图片素材，接下来我们就在原来单图片预加载的基础上来改进我们的函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">function preloadImg(list) &#123;</div><div class="line">	var imgs = arguments[1] || [],	//用于存储预加载好的图片资源</div><div class="line">    	fn = arguments.cal	lee;</div><div class="line">    if(list.length == 0) &#123;</div><div class="line">    	return imgs;</div><div class="line">    &#125;</div><div class="line">	var img = new Image();</div><div class="line">    img.src = list[0];</div><div class="line">    if(img.complete) &#123;</div><div class="line">    	imgs.push(img);</div><div class="line">        list.shift();</div><div class="line">        fn(list, imgs);</div><div class="line">    &#125;</div><div class="line">    else &#123;</div><div class="line">    	img.onload = function() &#123;</div><div class="line">        	imgs.push(img);</div><div class="line">            list.shift();</div><div class="line">            fn(list, imgs);</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">var list = [......],	//此处省略一万个字符</div><div class="line">	imgs = preloadImg();</div></pre></td></tr></table></figure></p>
-<p>因为帧动画可能需要保证每一帧动画所用的图片的顺序，所以我在这段代码中使用递归的方式，在上一张加载完成之后再去加载下一张图片，每加载一张图片，就把这张图片资源存储到<code>imgs</code>数组中，并且把这张图片的地址从地址数组<code>list</code>中去掉，当<code>list</code>中已经没有地址的时候跳出递归，并返回<code>imgs</code>数组<br>设想很美好，现实很残酷，这段代码有2个不能忍受的问题</p>
-<ol>
-<li>首先，我很有可能拿不到最后返回的<code>imgs</code>数组，因为只要有图片在本地没有缓存，<code>imgs</code>的存储操作都会放到<code>onload</code>的回调事件中，而<strong>事件监听</strong>也属于<code>javascript</code>中异步操作的一种，在绑定完<code>onload</code>事件的回调函数后，<code>preloadImg</code>函数就执行结束了，没有任何返回值，外部<code>imgs</code>变量接收到的值为<code>undefined</code>，只有在所有图片都有本地缓存的情况下，外部<code>imgs</code>变量才能顺利拿到存储了全部预加载图片资源的数组</li>
-<li>在加载完一张图片之后才去加载下一张，整个预加载图片的过程所需要的时间相对会比较长，用户体验会降低，而且本来异步操作具体速度快的特性，这样的实现方式等于完全弃置了<code>onload</code>异步的这个特性<br>##多图片预加载（改进版）##<br>这次我们直接把一个空数组作为参数传进函数，图片全部存储到这个数组里面，下面是改进后的函数代码（假设我们可以使用<code>jQuery</code>）<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">function preloadImg(list,imgs) &#123;</div><div class="line">	var def = $.Deferred(),</div><div class="line">        len = list.length;</div><div class="line">    $(list).each(function(i,e) &#123;</div><div class="line">        var img = new Image();</div><div class="line">        img.src = e;</div><div class="line">        if(img.complete) &#123;</div><div class="line">            imgs[i] = img;</div><div class="line">            len--;</div><div class="line">            if(len == 0) &#123;</div><div class="line">                def.resolve();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        else &#123;</div><div class="line">            img.onload = (function(j) &#123;</div><div class="line">                return function() &#123;</div><div class="line">                    imgs[j] = img</div><div class="line">                    len--;</div><div class="line">                    if(len == 0) &#123;</div><div class="line">                        def.resolve();</div><div class="line">                    &#125;</div><div class="line">                &#125;;</div><div class="line">            &#125;)(i);</div><div class="line">            img.onerror = function() &#123;</div><div class="line">                len--;</div><div class="line">                console.log(&apos;fail to load image&apos;);</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    return def.promise();</div><div class="line">&#125;</div><div class="line">var list = [......],	//此处省略一万个字符</div><div class="line">	imgs = [];</div><div class="line">$.when(preloadImg(list, imgs)).done(</div><div class="line">	function() &#123;</div><div class="line">    	//预加载结束</div><div class="line">        //do something here</div><div class="line">    &#125;</div><div class="line">);</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>在分别给每一个<code>img</code>绑定<code>onload</code>的回调函数时采用了闭包的方式，目的是为了保存住当前的递增变量<code>i</code>，要是不这么做，结果将会是<code>list</code>地址中没有本地缓存的图片都存储到<code>imgs</code>的最后一个元素上<br>这次每载入一张图片，我们并没有把这张图片的地址从<code>list</code>数组中去掉，这样后续需要使用<code>list</code>数组的数据时就能够顺利获取到</p>
-<p>thx for reading, hope u enjoy</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2595,7 +2594,7 @@ var f = new Fn();    // Error
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2617,7 +2616,7 @@ var f = new Fn();    // Error
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

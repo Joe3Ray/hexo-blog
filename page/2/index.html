@@ -316,6 +316,401 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2015/04/08/初探WebRTC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/04/08/初探WebRTC/" itemprop="url">
+                  初探WebRTC
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-08T18:16:10+08:00">
+                2015-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/04/08/初探WebRTC/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2015/04/08/初探WebRTC/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>##简介</p>
+<blockquote>
+<p>WebRTC is a new front in the long war for an open and unencumbered web.    </p>
+</blockquote>
+<p>这句话是JavaScript之父<em>Brendan Eich</em>对于WebRTC的评价，大致意思是『WebRTC是争取开放和无阻碍Web的漫长战争中一条新战线』。</p>
+<p>那么WebRTC到底是一种什么样的技术呢？WebRTC是一个免费的开放项目，提供了几个简单的API让浏览器、手机平台还有其他设备通过一个通用的协议进行实时通信，帮助开发者开发出丰富而且高质量的跨平台实时通信应用。</p>
+<p>本文的目的就是通过简洁的介绍和引导让开发者了解WebRTC的工作流程并能够快速上手开发WebRTC应用。</p>
+<p>##API</p>
+<ul>
+<li><p><strong>MediaStream(getUserMedia)</strong>    </p>
+<p>  MediaStream表示一段多媒体流，获取多媒体流的一个简单方式就是通过        <strong>getUserMedia</strong>函数，该函数可以调用设备的摄像头和麦克风，并拿到这些硬件生成的多媒体流。这些多媒体流可以输出到<code>video</code>标签或者一个<strong>RTCPeerConnection</strong>。</p>
+<p>  <strong>getUserMedia</strong>接受3个参数：</p>
+<ol>
+<li>一个限制对象，用于指定接受的流</li>
+<li>获取stream成功后的回调函数，被调用时能获取到对应的流</li>
+<li><p>获取stream失败后的回调函数，被调用时能获取到一个错误对象</p>
+<p>具体用法如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">var getUserMedia = navigator.getUserMedia || </div><div class="line">                      navigator.webkitGetUserMedia ||</div><div class="line">                      navigator.mozGetUserMedia;</div><div class="line">   var constraints = &#123;video: true&#125;;</div><div class="line">   getUserMedia(constraints, function (stream) &#123;</div><div class="line">       var video = document.querySelector(&quot;video&quot;);</div><div class="line">       //URL.createObjectURL方法把stream转换成blob，作为video的src属性进行播放</div><div class="line">       video.src = window.URL.createObjectURL(stream);</div><div class="line">       video.play();</div><div class="line">   &#125;, function (error) &#123;</div><div class="line">       console.log(error);</div><div class="line">   &#125;);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><strong>RTCPeerConnection</strong></li>
+</ul>
+<p>RTCPeerConnection帮我们做了很多事情，我们只需要把RTCPeerConnection理解成一种p2p传输音视频数据的通道，但是我们仍然还需要服务器来为我们传递消息，因为在建立p2p之前需要先互相交换session、网络配置、媒体适配等信息。另外，WebRTC还需要服务器帮助完成NAT穿越，以及在p2p建立失败的时候作为中转服务器。具体用法将在流程讲解中说明。</p>
+<ul>
+<li><p><strong>RTCDataChannel</strong></p>
+<p>  WebRTC除了支持视频和音频流之外，还支持其他类型的数据。RTCDataChannel用于点到点的任意数据交换，具有低延迟和高吞吐量的特点。RTCDataChannel必须建立在RTCPeerConnnection之上，没办法单独工作。</p>
+<p>  这个API潜在的应用场景很多，例如：</p>
+<ul>
+<li>游戏</li>
+<li>远程桌面应用</li>
+<li>实时文字聊天</li>
+<li><p>文件传输</p>
+<p>创建一个RTCDataChannel的方式如下：    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">   var RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;</div><div class="line">var peerConn = new RTCPeerConnection();</div><div class="line">   var dc = peerConn.createDataChannel(&quot;label&quot;);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p>##流程讲解</p>
+<p>看完上面的内容，大家应该还是处于云里雾里的状态，不知道WebRTC应用要如何开发，3个API如何配合使用。没关系，这里才是重点，看完这一段，相信你的所有疑惑就都解开了。</p>
+<p>要用WebRTC建立一个p2p通道需要经历2个步骤：</p>
+<ol>
+<li><p>获得本机SDP描述符并交换</p>
+<ul>
+<li>A、B均实例化一个RTCPeerConnection(以下简称rpcA和rpcB),调用rpcA的<code>createOffer()</code>方法建立一个offer信令，并且拿到A的SDP</li>
+<li>通过rpcA的<code>setLocalDescription()</code>方法设置A机器的本地描述</li>
+<li>A通过服务器将offer信令发给B</li>
+<li>B接收到A的offer信令，通过rpcB的<code>setRemoteDescription()</code>方法设置远程机器（即A）的描述</li>
+<li>B调用rpcB的<code>createAnswer()</code>方法建立一个answer信令，并且拿到B的SDP</li>
+<li>通过rpcB的<code>setLocalDescription()</code>方法设置B机器的本地描述</li>
+<li>B通过服务器将answer信令发送给A</li>
+<li><p>A接收到B的answer信令，通过rpcA的<code>setRemoteDescription()</code>方法设置远程机器B的描述</p>
+<p>这个过程完成后，A和B就都拿到各自的SDP描述符了</p>
+</li>
+</ul>
+</li>
+<li><p>通过ICE框架连接两段主机的网络地址</p>
+<p> ICE框架具体内容我不清楚，咱们姑且先了解在WebRTC中如何使用，对ICE感兴趣的同学可以自行谷歌。</p>
+<p> 在实例化RTCPeerConnection对象的时候可以传入ICE服务器的地址，我们可以使用谷歌提供的『stun:stun.l.google.com:19302』或者Mozilla提供的『stun:stun.services.mozilla.com』，代码如下：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">var configuration = &#123;iceServers: [&#123;url: &quot;stun:stun.l.google.com:19302&quot;&#125;]&#125;;</div><div class="line">var rpc = new RTCPeerConnection(configuration);</div></pre></td></tr></table></figure>
+<p> 在rpc上绑定onicecandidate事件的回调函数，当网络候选可用时这个函数会被调用，在这个回调函数中，本机可以拿到ice candidate信令，然后通过服务器发给远程机器，远程机器通过自己的rpc实例的<code>addIceCandidate()</code>方法添加，同样地，远程机器也应该将自己的ice candidate信令通过服务器发送给本机。</p>
+<p> 当双方的ice candidate交换完成时，连接就建立成功了，可以在rpc示例上调用<code>addStream()</code>来添加流，另一边通过绑定onaddstream事件就可以获取到传过去的流。</p>
+<p> 服务器通信部分，没有规定必须要用某种协议，所以只要能在两边传输消息的技术可以使用，例如<em>WebSocket</em>、<em>XHR</em>等，大家自行选择即可。<br>##示例</p>
+</li>
+</ol>
+<p>本来想自己写个例子给大家参考的，后来发现网上有个非常棒的实例教程，我就直接上地址了<a href="https://bitbucket.org/webrtc/codelab" target="_blank" rel="external">https://bitbucket.org/webrtc/codelab</a></p>
+<p>##小结</p>
+<p>写这篇文章的目的是为了让学习WebRTC的同学能够快速上手，对WebRTC技术有个整体的概念，所以文章写的比较简短，专注于讲解WebRTC的运作流程，对一些相关技术，比如ICE、SDP等没有深入探讨（当然我也不太懂）。如果你想快速上手制作WebRTC应用，看完这篇文章再对着<a href="https://bitbucket.org/webrtc/codelab" target="_blank" rel="external">codelab</a>提供的例子一步一步跟着做应该就没问题了。Good luck!</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.html5rocks.com/en/tutorials/webrtc/basics/" target="_blank" rel="external">http://www.html5rocks.com/en/tutorials/webrtc/basics/</a></li>
+<li><a href="http://www.webrtc.org/" target="_blank" rel="external">http://www.webrtc.org/</a></li>
+<li><a href="http://www.w3.org/TR/webrtc/" target="_blank" rel="external">http://www.w3.org/TR/webrtc/</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/WebRTC" target="_blank" rel="external">https://developer.mozilla.org/en-US/docs/Glossary/WebRTC</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/09/21/Javascript实现图片的预加载功能/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JoeRay61">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/joeray61.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JoeRay61">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/09/21/Javascript实现图片的预加载功能/" itemprop="url">
+                  Javascript实现图片的预加载功能
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-09-21T18:18:24+08:00">
+                2014-09-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2014/09/21/Javascript实现图片的预加载功能/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2014/09/21/Javascript实现图片的预加载功能/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近要用<code>javascript</code>做一个动画功能，为了确保动画在播放的时候能够顺利和平滑，我需要对所用到的图片素材进行<strong><em>预加载</em></strong>，下面跟大家分享一下我实现这个功能的过程</p>
+<p>##单图片预加载##<br>目前最常见的一种实现方式如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">function preloadImg(url) &#123;</div><div class="line">	var img = new Image();</div><div class="line">    img.src = url;</div><div class="line">    if(img.complete) &#123;</div><div class="line">    	//接下来可以使用图片了</div><div class="line">        //do something here</div><div class="line">    &#125;</div><div class="line">    else &#123;</div><div class="line">    	img.onload = function() &#123;</div><div class="line">        	//接下来可以使用图片了</div><div class="line">        	//do something here</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>首先实例化一个<code>Image</code>对象赋值给<code>img</code>，然后设置<code>img.src</code>为参数<code>url</code>指定的图片地址,接着判断<code>img</code>的<code>complete</code>属性，如果本地有这张图片的缓存，则该值为<code>true</code>，此时我们可以直接操作这张图片，如果本地没有缓存，则该值为<code>false</code>，此时我们需要监听<code>img</code>的<code>onload</code>事件，把对<code>img</code>的操作放在<code>onload</code>的回调函数里面，经过测试，这种方案基本能够兼容目前所有浏览器</p>
+<p>##多图片预加载##<br>很多场景下，单图片预加载并不能满足我们的需求，因为像动画这种功能通常都会有很多的图片素材，接下来我们就在原来单图片预加载的基础上来改进我们的函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">function preloadImg(list) &#123;</div><div class="line">	var imgs = arguments[1] || [],	//用于存储预加载好的图片资源</div><div class="line">    	fn = arguments.cal	lee;</div><div class="line">    if(list.length == 0) &#123;</div><div class="line">    	return imgs;</div><div class="line">    &#125;</div><div class="line">	var img = new Image();</div><div class="line">    img.src = list[0];</div><div class="line">    if(img.complete) &#123;</div><div class="line">    	imgs.push(img);</div><div class="line">        list.shift();</div><div class="line">        fn(list, imgs);</div><div class="line">    &#125;</div><div class="line">    else &#123;</div><div class="line">    	img.onload = function() &#123;</div><div class="line">        	imgs.push(img);</div><div class="line">            list.shift();</div><div class="line">            fn(list, imgs);</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">var list = [......],	//此处省略一万个字符</div><div class="line">	imgs = preloadImg();</div></pre></td></tr></table></figure></p>
+<p>因为帧动画可能需要保证每一帧动画所用的图片的顺序，所以我在这段代码中使用递归的方式，在上一张加载完成之后再去加载下一张图片，每加载一张图片，就把这张图片资源存储到<code>imgs</code>数组中，并且把这张图片的地址从地址数组<code>list</code>中去掉，当<code>list</code>中已经没有地址的时候跳出递归，并返回<code>imgs</code>数组<br>设想很美好，现实很残酷，这段代码有2个不能忍受的问题</p>
+<ol>
+<li>首先，我很有可能拿不到最后返回的<code>imgs</code>数组，因为只要有图片在本地没有缓存，<code>imgs</code>的存储操作都会放到<code>onload</code>的回调事件中，而<strong>事件监听</strong>也属于<code>javascript</code>中异步操作的一种，在绑定完<code>onload</code>事件的回调函数后，<code>preloadImg</code>函数就执行结束了，没有任何返回值，外部<code>imgs</code>变量接收到的值为<code>undefined</code>，只有在所有图片都有本地缓存的情况下，外部<code>imgs</code>变量才能顺利拿到存储了全部预加载图片资源的数组</li>
+<li>在加载完一张图片之后才去加载下一张，整个预加载图片的过程所需要的时间相对会比较长，用户体验会降低，而且本来异步操作具体速度快的特性，这样的实现方式等于完全弃置了<code>onload</code>异步的这个特性<br>##多图片预加载（改进版）##<br>这次我们直接把一个空数组作为参数传进函数，图片全部存储到这个数组里面，下面是改进后的函数代码（假设我们可以使用<code>jQuery</code>）<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">function preloadImg(list,imgs) &#123;</div><div class="line">	var def = $.Deferred(),</div><div class="line">        len = list.length;</div><div class="line">    $(list).each(function(i,e) &#123;</div><div class="line">        var img = new Image();</div><div class="line">        img.src = e;</div><div class="line">        if(img.complete) &#123;</div><div class="line">            imgs[i] = img;</div><div class="line">            len--;</div><div class="line">            if(len == 0) &#123;</div><div class="line">                def.resolve();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        else &#123;</div><div class="line">            img.onload = (function(j) &#123;</div><div class="line">                return function() &#123;</div><div class="line">                    imgs[j] = img</div><div class="line">                    len--;</div><div class="line">                    if(len == 0) &#123;</div><div class="line">                        def.resolve();</div><div class="line">                    &#125;</div><div class="line">                &#125;;</div><div class="line">            &#125;)(i);</div><div class="line">            img.onerror = function() &#123;</div><div class="line">                len--;</div><div class="line">                console.log(&apos;fail to load image&apos;);</div><div class="line">            &#125;;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    return def.promise();</div><div class="line">&#125;</div><div class="line">var list = [......],	//此处省略一万个字符</div><div class="line">	imgs = [];</div><div class="line">$.when(preloadImg(list, imgs)).done(</div><div class="line">	function() &#123;</div><div class="line">    	//预加载结束</div><div class="line">        //do something here</div><div class="line">    &#125;</div><div class="line">);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>在分别给每一个<code>img</code>绑定<code>onload</code>的回调函数时采用了闭包的方式，目的是为了保存住当前的递增变量<code>i</code>，要是不这么做，结果将会是<code>list</code>地址中没有本地缓存的图片都存储到<code>imgs</code>的最后一个元素上<br>这次每载入一张图片，我们并没有把这张图片的地址从<code>list</code>数组中去掉，这样后续需要使用<code>list</code>数组的数据时就能够顺利获取到</p>
+<p>thx for reading, hope u enjoy</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://joeray61.com/2014/09/20/浅谈Javascript中Promise对象的实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1311,7 +1706,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1333,7 +1728,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

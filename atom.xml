@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://joeray61.com/"/>
-  <updated>2017-05-21T06:18:46.000Z</updated>
+  <updated>2017-07-18T15:10:16.000Z</updated>
   <id>http://joeray61.com/</id>
   
   <author>
@@ -14,6 +14,140 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>eslint 学习笔记</title>
+    <link href="http://joeray61.com/2017/07/18/eslint-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://joeray61.com/2017/07/18/eslint-学习笔记/</id>
+    <published>2017-07-18T15:09:36.000Z</published>
+    <updated>2017-07-18T15:10:16.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>局部：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install eslint --save-dev</div></pre></td></tr></table></figure>
+<p>全局：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install eslint -g</div></pre></td></tr></table></figure>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eslint --init</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Note: 此处及以后都假设全局安装<code>eslint</code>或者在<code>npm script</code>中使用<code>eslint</code></p>
+</blockquote>
+<h2 id="使用eslint进行校验"><a href="#使用eslint进行校验" class="headerlink" title="使用eslint进行校验"></a>使用eslint进行校验</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eslint file.js</div></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h3 id="parser"><a href="#parser" class="headerlink" title="parser"></a>parser</h3><p>指定<code>eslint</code>使用的 parser，默认是<code>Espree</code>，除此之外常用的还有：</p>
+<ul>
+<li>Esprima</li>
+<li>Babel-ESLint</li>
+</ul>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;parser&quot;: &quot;esprima&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="parserOptions"><a href="#parserOptions" class="headerlink" title="parserOptions"></a>parserOptions</h3><p>指定传给 parser 的信息</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;parserOptions&quot;: &#123;</div><div class="line">        &quot;ecmaVersion&quot;: 6,</div><div class="line">        &quot;sourceType&quot;: &quot;module&quot;,</div><div class="line">        &quot;ecmaFeatures&quot;: &#123;</div><div class="line">            &quot;jsx&quot;: true</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="env"><a href="#env" class="headerlink" title="env"></a>env</h3><p>指定程序运行的环境，这关系到有哪些预先定义好的全局变量</p>
+<ul>
+<li>browser - 浏览器中的全局变量</li>
+<li>node - nodejs中的全局变量</li>
+<li>es6 - 启用 es6 中除了模块之外的其他特性（这会自动将<code>parserOptions.ecmaVersion</code>设置为<code>6</code>）</li>
+<li>worker - web worker中的全局变量</li>
+<li>mocha - mocha 测试框架中的全局变量</li>
+<li>…</li>
+</ul>
+<blockquote>
+<p>Note: 可以同时定义多个<code>env</code></p>
+</blockquote>
+<p><code>.eslintrc</code>示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;env&quot;: &#123;</div><div class="line">        &quot;browser&quot;: true,</div><div class="line">        &quot;node&quot;: true</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="globals"><a href="#globals" class="headerlink" title="globals"></a>globals</h3><p>全局变量申明，<code>true</code>表示允许改写，<code>false</code>表示不允许改写</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;globals&quot;: &#123;</div><div class="line">        &quot;var1&quot;: true,</div><div class="line">        &quot;var2&quot;: false</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="plugins"><a href="#plugins" class="headerlink" title="plugins"></a>plugins</h3><p>声明使用了哪些插件，插件名可以默认忽略<code>eslint-plugin-</code>前缀，这些插件可以用于<code>rules</code>、<code>env</code>和<code>extends</code>等配置中</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;plugins&quot;: [</div><div class="line">        &quot;example&quot; // or &quot;eslint-plugin-example&quot;</div><div class="line">    ],</div><div class="line">    &quot;env&quot;: &#123;</div><div class="line">        &quot;example/custom&quot;: true</div><div class="line">    &#125;,</div><div class="line">    &quot;extends&quot;: [</div><div class="line">        &quot;eslint:recommended&quot;,</div><div class="line">        &quot;plugin:example/recommended&quot;</div><div class="line">    ],</div><div class="line">    &quot;rules&quot;: &#123;</div><div class="line">       &quot;example/rule1&quot;: &quot;error&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="extends"><a href="#extends" class="headerlink" title="extends"></a>extends</h3><p>继承一套基础配置</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;extends&quot;: &quot;eslint:recommended&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="rules"><a href="#rules" class="headerlink" title="rules"></a>rules</h3><p>具体校验规则的配置</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;rules&quot;: &#123;</div><div class="line">       &quot;no-set-state&quot;: &quot;off&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>可以参考 <a href="http://eslint.org/docs/rules/" target="_blank" rel="external">http://eslint.org/docs/rules/</a> 了解更多<code>rule</code></p>
+</blockquote>
+<h3 id="settings"><a href="#settings" class="headerlink" title="settings"></a>settings</h3><p>共享的配置，配置中的信息将会被传递给所有要执行的规则（rule）</p>
+<p><code>.eslintrc</code>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;settings&quot;: &#123;</div><div class="line">        &quot;sharedData&quot;: &quot;Hello&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="注释配置"><a href="#注释配置" class="headerlink" title="注释配置"></a>注释配置</h2><p>注释配置是指在<code>js</code>文件中通过注释来单独指定一些校验信息</p>
+<h3 id="env-1"><a href="#env-1" class="headerlink" title="env"></a>env</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/* eslint-env node, mocha */</div></pre></td></tr></table></figure>
+<h3 id="global"><a href="#global" class="headerlink" title="global"></a>global</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/* global var1:false, var2:false */</div></pre></td></tr></table></figure>
+<h3 id="rule"><a href="#rule" class="headerlink" title="rule"></a>rule</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/* eslint eqeqeq: 0, curly: 2 */</div></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>“off” or 0: 关闭这条规则</li>
+<li>“warn” or 1: 开启规则，如果校验有问题则抛出警告</li>
+<li>“error” or 2: 开启规则，如果校验有问题则抛出错误</li>
+</ul>
+</blockquote>
+<h3 id="关闭-开启所有规则校验"><a href="#关闭-开启所有规则校验" class="headerlink" title="关闭/开启所有规则校验"></a>关闭/开启所有规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">/* eslint-disable */</div><div class="line"></div><div class="line">alert(&apos;foo&apos;);</div><div class="line"></div><div class="line">/* eslint-enable */</div></pre></td></tr></table></figure>
+<h3 id="关闭-开启校验部分具体的规则校验"><a href="#关闭-开启校验部分具体的规则校验" class="headerlink" title="关闭/开启校验部分具体的规则校验"></a>关闭/开启校验部分具体的规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">/* eslint-disable no-alert, no-console */</div><div class="line"></div><div class="line">alert(&apos;foo&apos;);</div><div class="line">console.log(&apos;bar&apos;);</div><div class="line"></div><div class="line">/* eslint-enable no-alert, no-console */</div></pre></td></tr></table></figure>
+<h3 id="关闭当前行的所有规则校验"><a href="#关闭当前行的所有规则校验" class="headerlink" title="关闭当前行的所有规则校验"></a>关闭当前行的所有规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alert(&apos;foo&apos;); // eslint-disable-line</div></pre></td></tr></table></figure>
+<h3 id="关闭下一行的所有规则校验"><a href="#关闭下一行的所有规则校验" class="headerlink" title="关闭下一行的所有规则校验"></a>关闭下一行的所有规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">// eslint-disable-next-line</div><div class="line">alert(&apos;foo&apos;);</div></pre></td></tr></table></figure>
+<h3 id="关闭当前行的具体规则校验"><a href="#关闭当前行的具体规则校验" class="headerlink" title="关闭当前行的具体规则校验"></a>关闭当前行的具体规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alert(&apos;foo&apos;); // eslint-disable-line no-alert</div></pre></td></tr></table></figure>
+<h3 id="关闭下一行的具体规则校验"><a href="#关闭下一行的具体规则校验" class="headerlink" title="关闭下一行的具体规则校验"></a>关闭下一行的具体规则校验</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">// eslint-disable-next-line no-alert</div><div class="line">alert(&apos;foo&apos;);</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;安装&quot;&gt;&lt;a href=&quot;#安装&quot; class=&quot;headerlink&quot; title=&quot;安装&quot;&gt;&lt;/a&gt;安装&lt;/h2&gt;&lt;p&gt;局部：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;
+    
+    </summary>
+    
+      <category term="技术" scheme="http://joeray61.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="JavaScript" scheme="http://joeray61.com/tags/JavaScript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【译】JavaScript分号插入 - 所有你需要知道的事</title>
+    <link href="http://joeray61.com/2017/05/26/%E3%80%90%E8%AF%91%E3%80%91JavaScript%E5%88%86%E5%8F%B7%E6%8F%92%E5%85%A5-%E6%89%80%E6%9C%89%E4%BD%A0%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B/"/>
+    <id>http://joeray61.com/2017/05/26/【译】JavaScript分号插入-所有你需要知道的事/</id>
+    <published>2017-05-26T06:42:06.000Z</published>
+    <updated>2017-06-12T13:01:07.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>原文地址：<a href="http://inimino.org/~inimino/blog/javascript_semicolons" target="_blank" rel="external">http://inimino.org/~inimino/blog/javascript_semicolons</a></p>
+</blockquote>
+<p>分号自动插入是 JavaScript 最具争议的语法特点之一，人们对于这个特点有许多误解。</p>
+<p>一些 JavaScript 程序员在每一条语句后面使用分号，还有一些只在必要的时候使用分号。大部分人介于这两者之间，有些甚至添加额外的分号作为风格。</p>
+<p>即使你在每一行语句的结尾都加上分号，一些构建工具还是会转换成不明显的方式。不管你在使用分号这件事上是何种偏好，你必须知道如何能够专业地书写 JavaScript 代码。如果你能记住下面要说的这几种简单规则，你就能理解任何你有可能遇到的程序是如何被解析的，并且对 JavaScript 自动插入分号的机制了如指掌。</p>
+<h2 id="何时允许使用分号"><a href="#何时允许使用分号" class="headerlink" title="何时允许使用分号"></a>何时允许使用分号</h2><p>在 ECMAScirpt 标准中给出的正式语法，分号出现在每一句他们能出现的语句的末尾。比如<code>do-while</code>语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">do Statement while ( Expression ) ;</div></pre></td></tr></table></figure>
+<p>分号也会出现在变量声明语句、表达式语句（例如<code>&quot;4 + 4;&quot;</code> 或者<code>&quot;f();&quot;</code>）、continue、return、break、throw 和 debugger 语句后。</p>
+<p>空语句只有一个分号，这在 JavaScript 中也是合法的。因此，<code>;;;</code>是一句合法的 JavaScript 语句，它会被解析成三条空语句，运行时不做任何事，如此重复三次。</p>
+<p>有时候空语句的确是有用的，至少从语法上来说是这样。举个例子，要写一个无限循环，可以写<code>while(1);</code>，这里分号会被解析成空语句，这样<code>while</code>语句在语法上就是合法的。如果删掉分号，那<code>while</code>语句就不完整了，因为循环条件后面必须要有其他语句。</p>
+<p>最后，分号也会出现在 for 循环语句中，例如<code>for ( Expression ; Expression ; Expression ) Statement</code>的形式，当然还有字符串和常规的字面量表达式中也会出现分号。</p>
+<h2 id="何时可以删除分号"><a href="#何时可以删除分号" class="headerlink" title="何时可以删除分号"></a>何时可以删除分号</h2><p>在 ECMAScript 标准的正式语法中，分号就是按照上述的场景来引入的。但是，标准随后也给出了一些规则，这些规则描述了真实的解析过程与正式语法的区别。分号会在解析时被插入到标记流中，尽快这只是规范层面的遍历用法。实际上，解析器并不需要生成假的分号标记，而是把分号视为在语法中特定位置可选（比如可以参考<a href="http://boshi.inimino.org/3box/PanPG/grammars/ECMAScript_5.peg" target="_blank" rel="external">this parser expression grammar for ECMAScript</a>，尤其是<code>Statement</code>，<code>EOS</code>，<code>EOSnoLB</code>和<code>SnoLB</code>规则）。插入了分号，就意味着当前正在被解析的这条语句结束了。</p>
+<p>分号插入规则在<a href="http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf" target="_blank" rel="external">ECMA-262 [pdf]</a>的 7.9 章节有具体说明。</p>
+<p>这一章节指出了 3 条基本规则，以及 2 个例外情况。</p>
+<p>规则是：</p>
+<ol>
+<li>当程序出现了一个不是正式语法允许的标记，如果 (a) 在那里有一个换行，或者 (b) 那个意外标记是一个关闭的大括号，就会插入一个分号</li>
+<li>当一个文件已经到最后了，如果程序无法继续被解析，就会插入分号</li>
+<li></li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;原文地址：&lt;a href=&quot;http://inimino.org/~inimino/blog/javascript_semicolons&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://inimino.org/~ini
+    
+    </summary>
+    
+      <category term="技术" scheme="http://joeray61.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="JavaScript" scheme="http://joeray61.com/tags/JavaScript/"/>
+    
+  </entry>
   
   <entry>
     <title>rollup 初体验</title>
